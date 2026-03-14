@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First Media — Case Study 04 | ENDAR</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2ec;
+    --accent: #ff4d00;
+    --accent2: #ffd000;
+    --gray: #1a1a1a;
+    --mid: #2e2e2e;
+    --muted: #888;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background:var(--black); color:var(--white); font-family:var(--font-body); font-size:16px; line-height:1.6; overflow-x:hidden; cursor:none; }
+
+  .cursor { width:12px; height:12px; background:var(--accent); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9999; transition:transform 0.15s ease, background 0.2s ease; transform:translate(-50%,-50%); }
+  .cursor-ring { width:36px; height:36px; border:1.5px solid rgba(255,77,0,0.5); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9998; transition:transform 0.35s ease; transform:translate(-50%,-50%); }
+  body:has(a:hover) .cursor { transform:translate(-50%,-50%) scale(2.5); background:var(--accent2); }
+
+  nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:24px 48px; background:linear-gradient(to bottom, rgba(10,10,10,0.95), transparent); backdrop-filter:blur(8px); }
+  .nav-logo { font-family:var(--font-display); font-size:28px; letter-spacing:4px; color:var(--white); text-decoration:none; }
+  .nav-back { display:flex; align-items:center; gap:10px; font-family:var(--font-head); font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(245,242,236,0.6); text-decoration:none; transition:color 0.2s; }
+  .nav-back:hover { color:var(--accent); }
+  .nav-back svg { transition:transform 0.2s; }
+  .nav-back:hover svg { transform:translateX(-4px); }
+
+  /* HERO — bold red/dark theme for a dominant market player */
+  .cs-hero { min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end; padding:0 48px 80px; position:relative; overflow:hidden; }
+  .cs-hero-bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 80% 60% at 40% 20%, rgba(60,0,0,0.95) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 90% 80%, rgba(255,77,0,0.08) 0%, transparent 60%);
+  }
+  .hero-grain { position:absolute; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); opacity:0.4; pointer-events:none; }
+  .hero-glow { position:absolute; inset:0; background:radial-gradient(ellipse 60% 50% at 35% 25%, rgba(255,30,0,0.12) 0%, transparent 60%); }
+  .case-num-bg { position:absolute; top:50%; right:-20px; transform:translateY(-50%); font-family:var(--font-display); font-size:clamp(200px,30vw,450px); line-height:1; color:rgba(255,255,255,0.025); letter-spacing:-10px; user-select:none; }
+
+  .cs-tag { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--accent); margin-bottom:16px; opacity:0; animation:fadeUp 0.6s 0.2s forwards; display:flex; align-items:center; gap:12px; }
+  .cs-tag::before { content:''; display:block; width:32px; height:1px; background:var(--accent); }
+  .cs-industry { font-family:var(--font-head); font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:rgba(245,242,236,0.4); margin-bottom:20px; opacity:0; animation:fadeUp 0.6s 0.35s forwards; }
+  .cs-title { font-family:var(--font-display); font-size:clamp(52px,8vw,140px); line-height:0.92; letter-spacing:-1px; opacity:0; animation:fadeUp 0.8s 0.5s forwards; max-width:1100px; }
+  .cs-title em { font-style:normal; color:var(--accent); }
+  .cs-title .outline { -webkit-text-stroke:2px var(--white); color:transparent; }
+
+  .cs-hero-meta { margin-top:40px; display:flex; gap:48px; opacity:0; animation:fadeUp 0.8s 0.7s forwards; }
+  .hero-meta-label { font-family:var(--font-head); font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .hero-meta-val { font-family:var(--font-head); font-size:16px; font-weight:700; color:var(--white); }
+
+  .scroll-indicator { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; opacity:0; animation:fadeUp 0.8s 1s forwards; }
+  .scroll-indicator span { font-family:var(--font-head); font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); }
+  .scroll-line { width:1px; height:48px; background:linear-gradient(to bottom, var(--accent), transparent); animation:scrollAnim 1.5s 1.5s infinite; }
+
+  .ticker-wrap { border-top:1px solid var(--mid); border-bottom:1px solid var(--mid); padding:14px 0; overflow:hidden; }
+  .ticker-track { display:flex; animation:ticker 20s linear infinite; width:max-content; }
+  .ticker-item { font-family:var(--font-display); font-size:14px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); padding:0 40px; white-space:nowrap; }
+  .ticker-item span { color:var(--accent); margin-right:40px; }
+
+  .section { padding:120px 48px; max-width:1400px; margin:0 auto; }
+  .section-alt { background:var(--gray); }
+  .section-alt-inner { max-width:1400px; margin:0 auto; padding-top: 80px; padding-bottom: 80px;}
+
+  .section-label { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--accent); margin-bottom:24px; display:flex; align-items:center; gap:12px; }
+  .section-label::before { content:''; display:block; width:32px; height:1px; background:var(--accent); }
+  .section-title { font-family:var(--font-head); font-size:clamp(32px,4vw,52px); font-weight:800; line-height:1.1; margin-bottom:28px; }
+  .section-title em { font-style:normal; color:var(--accent); }
+
+  .overview-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+  .overview-body { font-size:17px; font-weight:300; color:rgba(245,242,236,0.7); line-height:1.8; }
+  .overview-body p { margin-bottom:20px; }
+  .overview-body strong { color:var(--white); font-weight:500; }
+
+  /* BIG STAT HERO BLOCK */
+  .big-stat-block { padding:80px 48px; background:var(--gray); border-top:1px solid var(--mid); border-bottom:1px solid var(--mid); }
+  .big-stat-inner { max-width:1400px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr 1fr; gap:2px; }
+  .big-stat-card { background:var(--black); padding:60px 48px; position:relative; overflow:hidden; transition:transform 0.3s; }
+  .big-stat-card:hover { transform:translateY(-6px); }
+  .big-stat-card::before { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background:linear-gradient(90deg, var(--accent), var(--accent2)); transform:scaleX(0); transform-origin:left; transition:transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+  .big-stat-card:hover::before { transform:scaleX(1); }
+  .big-stat-num { font-family:var(--font-display); font-size:clamp(60px,8vw,100px); color:var(--accent2); line-height:1; letter-spacing:-1px; }
+  .big-stat-key { font-family:var(--font-head); font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-top:12px; }
+  .big-stat-desc { font-size:14px; font-weight:300; color:rgba(245,242,236,0.45); line-height:1.6; margin-top:8px; }
+
+  /* MONTH BREAKDOWN */
+  .months-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-top:48px; }
+  .month-card { background:var(--gray); padding:40px; border-top:3px solid var(--mid); position:relative; overflow:hidden; transition:border-color 0.3s; }
+  .month-card:hover { border-top-color:var(--accent); }
+  .month-card.best { border-top-color:var(--accent2); }
+  .month-label { font-family:var(--font-head); font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--accent); margin-bottom:16px; }
+  .month-leads { font-family:var(--font-display); font-size:56px; color:var(--white); line-height:1; }
+  .month-leads em { color:var(--accent2); font-style:normal; }
+  .month-subtext { font-size:13px; font-weight:300; color:rgba(245,242,236,0.45); line-height:1.6; margin-top:12px; }
+  .month-badge { display:inline-block; font-family:var(--font-head); font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:4px 10px; background:rgba(255,208,0,0.12); color:var(--accent2); border:1px solid rgba(255,208,0,0.3); margin-top:12px; }
+
+  /* STRATEGY */
+  .strategy-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; }
+  .strategy-item { padding:32px 0; border-bottom:1px solid var(--mid); }
+  .strategy-item:first-child { padding-top:0; }
+  .strategy-num { font-family:var(--font-display); font-size:60px; color:rgba(255,77,0,0.12); line-height:1; margin-bottom:8px; }
+  .strategy-title { font-family:var(--font-head); font-size:18px; font-weight:700; margin-bottom:12px; }
+  .strategy-body { font-size:15px; font-weight:300; color:rgba(245,242,236,0.6); line-height:1.7; }
+
+  /* 2X VISUALIZATION */
+  .target-viz { margin-top:48px; padding:48px; background:var(--black); border:1px solid var(--mid); position:relative; overflow:hidden; }
+  .target-viz::before { content:'TARGET EXCEEDED'; position:absolute; right:24px; top:24px; font-family:var(--font-head); font-size:9px; font-weight:700; letter-spacing:3px; color:rgba(255,208,0,0.4); }
+  .viz-bars { display:flex; flex-direction:column; gap:24px; }
+  .viz-bar-row { display:flex; align-items:center; gap:20px; }
+  .viz-bar-label { font-family:var(--font-head); font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; width:120px; flex-shrink:0; }
+  .viz-bar-track { flex:1; height:12px; background:var(--mid); position:relative; }
+  .viz-bar-fill { height:100%; background:linear-gradient(90deg, var(--accent), var(--accent2)); transition:width 1.5s cubic-bezier(0.16,1,0.3,1); width:0; }
+  .viz-bar-fill.animated { }
+  .viz-bar-val { font-family:var(--font-display); font-size:24px; color:var(--accent2); min-width:80px; text-align:right; }
+
+  /* CHANNEL BREAKDOWN */
+  .channels-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; margin-top:40px; }
+  .ch-card { background:var(--black); padding:36px; border-left:3px solid var(--mid); transition:border-color 0.3s; }
+  .ch-card:hover { border-color:var(--accent); }
+  .ch-name { font-family:var(--font-display); font-size:28px; margin-bottom:16px; color:var(--white); }
+  .ch-role { font-family:var(--font-head); font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:16px; }
+  .ch-body { font-size:14px; font-weight:300; color:rgba(245,242,236,0.55); line-height:1.7; }
+
+  /* LEARNINGS */
+  .learnings-list { display:flex; flex-direction:column; gap:24px; margin-top:40px; }
+  .learning-item { display:flex; gap:24px; align-items:flex-start; padding:28px; background:var(--gray); border-left:3px solid var(--accent); transition:background 0.3s; }
+  .learning-item:hover { background:rgba(255,77,0,0.04); }
+  .learning-icon { font-size:24px; flex-shrink:0; margin-top:2px; }
+  .learning-title { font-family:var(--font-head); font-size:16px; font-weight:700; margin-bottom:8px; }
+  .learning-text { font-size:15px; font-weight:300; color:rgba(245,242,236,0.6); line-height:1.7; }
+
+  .cs-quote { padding:80px 48px; text-align:center; }
+  .cs-quote blockquote { font-family:var(--font-display); font-size:clamp(28px,4vw,52px); color:var(--white); line-height:1.2; max-width:900px; margin:0 auto; position:relative; }
+  .cs-quote blockquote::before { content:'"'; font-family:var(--font-display); font-size:160px; color:rgba(255,77,0,0.1); position:absolute; top:-40px; left:-20px; line-height:1; }
+  .cs-quote em { font-style:normal; color:var(--accent); }
+
+  /* FINAL CTA — last case loops back */
+  .back-to-portfolio { border-top:1px solid var(--mid); padding:80px 48px; display:flex; justify-content:space-between; align-items:center; }
+  .back-label { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+  .back-title { font-family:var(--font-display); font-size:clamp(36px,5vw,72px); color:var(--white); text-decoration:none; display:block; transition:color 0.2s; }
+  .back-title:hover { color:var(--accent); }
+  .back-arrow { font-family:var(--font-display); font-size:80px; color:rgba(255,77,0,0.2); transition:color 0.3s, transform 0.3s; text-decoration:none; }
+  .back-arrow:hover { color:var(--accent); transform:translateX(-8px); }
+
+  footer { border-top:1px solid var(--mid); padding:40px 48px; display:flex; justify-content:space-between; align-items:center; }
+  .footer-logo { font-family:var(--font-display); font-size:24px; letter-spacing:4px; color:rgba(245,242,236,0.3); }
+  .footer-copy { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+
+  .section-divider { width:100%; height:1px; background:linear-gradient(90deg, transparent, var(--mid), transparent); }
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.visible { opacity:1; transform:none; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+  @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  @keyframes scrollAnim { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  @media(max-width:900px){
+    nav{padding:20px 24px;} .cs-hero{padding:0 24px 60px;} .section{padding:80px 24px;}
+    .overview-grid,.strategy-grid{grid-template-columns:1fr;gap:40px;}
+    .big-stat-inner,.months-grid,.channels-grid{grid-template-columns:1fr;}
+    .back-to-portfolio{flex-direction:column;gap:32px;padding:60px 24px;}
+    footer{padding:32px 24px;flex-direction:column;gap:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="endar-portfolio.html" class="nav-logo">ENDAR</a>
+  <a href="endar-portfolio.html#work" class="nav-back">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    All Case Studies
+  </a>
+</nav>
+
+<!-- HERO -->
+<section class="cs-hero">
+  <div class="cs-hero-bg"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-glow"></div>
+  <div class="case-num-bg">04</div>
+  <div class="cs-tag">Case Study 04</div>
+  <div class="cs-industry">Telecom / ISP</div>
+  <h1 class="cs-title">
+    FIRST MEDIA<br>
+    <em>Lead</em> <span class="outline">Acquisition</span><br>
+    Campaign
+  </h1>
+  <div class="cs-hero-meta">
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Client</div>
+      <div class="hero-meta-val">First Media</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Duration</div>
+      <div class="hero-meta-val">4 Consecutive Months</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Peak Performance</div>
+      <div class="hero-meta-val">600+ Leads / Day</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Target Exceeded</div>
+      <div class="hero-meta-val">2× (300 → 600/day)</div>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <div class="ticker-item"><span>★</span> 600+ Leads Per Day</div>
+    <div class="ticker-item"><span>★</span> 4 Consecutive Months</div>
+    <div class="ticker-item"><span>★</span> 2× Target Exceeded</div>
+    <div class="ticker-item"><span>★</span> 300/day → 600/day</div>
+    <div class="ticker-item"><span>★</span> Sustained Scale</div>
+    <div class="ticker-item"><span>★</span> 600+ Leads Per Day</div>
+    <div class="ticker-item"><span>★</span> 4 Consecutive Months</div>
+    <div class="ticker-item"><span>★</span> 2× Target Exceeded</div>
+    <div class="ticker-item"><span>★</span> 300/day → 600/day</div>
+    <div class="ticker-item"><span>★</span> Sustained Scale</div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section reveal">
+  <div class="overview-grid">
+    <div>
+      <div class="section-label">Overview</div>
+      <h2 class="section-title">The <em>Challenge</em></h2>
+      <div class="overview-body">
+        <p>First Media — one of Indonesia's largest cable TV and internet service providers — needed a sustained digital lead acquisition engine that could reliably deliver <strong>high-volume qualified leads every single day</strong>, not just a one-time spike.</p>
+        <p>The initial target was ambitious: 300 qualified leads per day. In ISP marketing, this is a significant volume requiring precise multi-channel orchestration, consistent creative refresh cycles, and constant optimization to prevent ad fatigue.</p>
+        <p>The real test wasn't just hitting the target — it was <strong>sustaining and doubling it across 4 consecutive months</strong> without audience burnout or CPL degradation.</p>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">My Role</div>
+      <h2 class="section-title">What I <em>Did</em></h2>
+      <div class="overview-body">
+        <p>Led the complete acquisition strategy from brief through to sustained delivery:</p>
+        <p>→ Multi-channel campaign architecture (Meta, TikTok, Google)<br>
+        → Lead volume forecasting and daily pacing management<br>
+        → Creative rotation strategy to prevent ad fatigue<br>
+        → Audience expansion and lookalike modeling<br>
+        → Weekly performance reviews with First Media stakeholders<br>
+        → Month-over-month optimization to scale from 300 → 600/day</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- BIG STATS -->
+<div class="big-stat-block reveal">
+  <div class="big-stat-inner">
+    <div class="big-stat-card">
+      <div class="big-stat-num">600+</div>
+      <div class="big-stat-key">Leads Per Day</div>
+      <div class="big-stat-desc">Sustained peak performance across the full 4-month campaign period</div>
+    </div>
+    <div class="big-stat-card">
+      <div class="big-stat-num">4 Mo.</div>
+      <div class="big-stat-key">Consecutive Delivery</div>
+      <div class="big-stat-desc">Not a spike — consistent, daily lead delivery across every month of the campaign</div>
+    </div>
+    <div class="big-stat-card">
+      <div class="big-stat-num">2×</div>
+      <div class="big-stat-key">Target Exceeded</div>
+      <div class="big-stat-desc">Initial brief was 300 leads/day. Doubled from Month 1 and maintained at scale</div>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE -->
+<div class="cs-quote reveal">
+  <blockquote>
+    Doubling the brief is an achievement. <em>Sustaining that double for 4 months straight</em> — that's a system.
+  </blockquote>
+</div>
+
+<!-- MONTH BREAKDOWN -->
+<div class="section reveal">
+  <div class="section-label">Monthly Performance</div>
+  <h2 class="section-title">4-Month <em>Track Record</em></h2>
+  <div class="months-grid">
+    <div class="month-card">
+      <div class="month-label">Month 01</div>
+      <div class="month-leads"><em>300+</em></div>
+      <div class="month-subtext">Launched at target. Established baseline across 3 channels. First Media stakeholders approved expansion budget.</div>
+    </div>
+    <div class="month-card">
+      <div class="month-label">Month 02</div>
+      <div class="month-leads"><em>450+</em></div>
+      <div class="month-subtext">Scaled via lookalike audience expansion on Meta and TikTok. Creative refresh cycle introduced. 50% above original target.</div>
+    </div>
+    <div class="month-card best">
+      <div class="month-label">Month 03</div>
+      <div class="month-leads"><em>600+</em></div>
+      <div class="month-subtext">Full scale achieved. Budget increase approved after M2 performance. Daily 600+ lead volume locked in.</div>
+      <div class="month-badge">⭐ Target Doubled</div>
+    </div>
+    <div class="month-card best">
+      <div class="month-label">Month 04</div>
+      <div class="month-leads"><em>600+</em></div>
+      <div class="month-subtext">Sustained. Zero decline in volume or quality. CPL remained stable. Campaign concluded on client request.</div>
+      <div class="month-badge">✓ Sustained Peak</div>
+    </div>
+  </div>
+
+  <!-- BAR VIZ -->
+  <div class="target-viz reveal">
+    <div class="viz-bars">
+      <div class="viz-bar-row">
+        <div class="viz-bar-label" style="color:var(--muted);font-size:10px;">TARGET</div>
+        <div class="viz-bar-track">
+          <div class="viz-bar-fill" id="bar-target" style="width:50%;background:var(--mid);"></div>
+        </div>
+        <div class="viz-bar-val" style="color:var(--muted);font-size:18px;">300/day</div>
+      </div>
+      <div class="viz-bar-row">
+        <div class="viz-bar-label" style="color:var(--accent);font-size:10px;">DELIVERED</div>
+        <div class="viz-bar-track">
+          <div class="viz-bar-fill" id="bar-actual" style="width:100%;"></div>
+        </div>
+        <div class="viz-bar-val">600+/day</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STRATEGY -->
+<div class="section-alt">
+  <div class="section-alt-inner">
+    <div class="section reveal" style="padding-top:0;padding-bottom:0;">
+      <div class="section-label">Acquisition Strategy</div>
+      <h2 class="section-title">How We <em>Scaled</em></h2>
+      <div class="strategy-grid">
+        <div>
+          <div class="strategy-item">
+            <div class="strategy-num">01</div>
+            <div class="strategy-title">Multi-Channel Lead Architecture</div>
+            <div class="strategy-body">Built a diversified lead ecosystem across Meta, TikTok, and Google Search — each serving a different audience intent state. Meta captured interest-level audiences with video lead ads, TikTok engaged younger demographics with native content, and Google captured high-intent searchers. No single channel dependency meant no single point of failure.</div>
+          </div>
+          <div class="strategy-item">
+            <div class="strategy-num">02</div>
+            <div class="strategy-title">Creative Rotation System</div>
+            <div class="strategy-body">Developed a 2-week creative refresh cadence to prevent ad fatigue — the #1 killer of sustained high-volume campaigns. New creative variants were batched, tested in week 1, and promoted to primary in week 2 if they matched or beat the control. This kept frequency from degrading CTR over the 4-month run.</div>
+          </div>
+        </div>
+        <div>
+          <div class="strategy-item">
+            <div class="strategy-num">03</div>
+            <div class="strategy-title">Lookalike Audience Expansion</div>
+            <div class="strategy-body">Started with First Media's existing subscriber list as the seed audience on Meta and TikTok, building 1–3% and 3–7% lookalike audiences. As M2 data matured, expanded to value-based lookalikes seeded from highest-quality lead cohorts. This expansion was the key driver behind the M2→M3 volume jump.</div>
+          </div>
+          <div class="strategy-item">
+            <div class="strategy-num">04</div>
+            <div class="strategy-title">Daily Volume Pacing & QA</div>
+            <div class="strategy-body">Built a daily pacing dashboard tracking leads against targets in real-time. If a channel underperformed before noon, budget was reallocated to the overperformer same-day. This operational discipline — not just strategic planning — is what kept 600/day consistent across all 30 days of Months 3 and 4.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHANNEL BREAKDOWN -->
+<div class="section reveal">
+  <div class="section-label">Channel Mix</div>
+  <h2 class="section-title">Where Leads <em>Came From</em></h2>
+  <div class="channels-grid">
+    <div class="ch-card">
+      <div class="ch-name">Meta Ads</div>
+      <div class="ch-role">Primary Volume Driver</div>
+      <div class="ch-body">Facebook and Instagram Lead Ads served as the highest-volume channel. Native lead forms — requiring no landing page — reduced friction and maximized conversion rate from impression to submitted lead. Lookalike audiences from First Media's customer database drove targeting precision.</div>
+    </div>
+    <div class="ch-card">
+      <div class="ch-name">TikTok Ads</div>
+      <div class="ch-role">Growth & Demographic Expansion</div>
+      <div class="ch-body">TikTok targeted younger urban homeowners and apartment renters — a key growth segment for First Media. Click-to-WhatsApp format supplemented native lead forms. TikTok's contribution grew from 15% to 30% of total leads between M1 and M4 as creative quality matured.</div>
+    </div>
+    <div class="ch-card">
+      <div class="ch-name">Google SEM</div>
+      <div class="ch-role">High-Intent Capture</div>
+      <div class="ch-body">Google Search targeted the highest-intent searchers — those actively looking for cable TV or fiber internet in First Media service areas. Smaller volume but highest lead quality score. Provided a quality anchor that balanced the higher-volume but lower-intent social media leads.</div>
+    </div>
+  </div>
+</div>
+
+<!-- LEARNINGS -->
+<div class="section-alt">
+  <div class="section-alt-inner">
+    <div class="section reveal" style="padding-top:0;padding-bottom:0;">
+      <div class="section-label">Takeaways</div>
+      <h2 class="section-title">Key <em>Learnings</em></h2>
+      <div class="learnings-list">
+        <div class="learning-item">
+          <div class="learning-icon">🏗️</div>
+          <div>
+            <div class="learning-title">Sustained volume requires systems, not just campaigns</div>
+            <div class="learning-text">Anyone can spike lead volume for a week. Maintaining 600+ leads/day for 120 consecutive days requires a different mindset — creative rotation systems, daily pacing dashboards, multi-channel redundancy, and a willingness to make same-day tactical decisions. The campaign infrastructure was as important as the campaign strategy.</div>
+          </div>
+        </div>
+        <div class="learning-item">
+          <div class="learning-icon">🔄</div>
+          <div>
+            <div class="learning-title">Creative fatigue is a volume killer — rotation saves campaigns</div>
+            <div class="learning-text">At high frequency and sustained spend, the same creative wears out audiences within 2-3 weeks. Implementing a disciplined 2-week creative refresh cadence — with new variants continuously tested in rotation — was the primary reason CTR and CPL remained stable across all 4 months rather than degrading.</div>
+          </div>
+        </div>
+        <div class="learning-item">
+          <div class="learning-icon">📡</div>
+          <div>
+            <div class="learning-title">Multi-channel redundancy protects volume targets</div>
+            <div class="learning-text">Running concurrent campaigns on Meta, TikTok, and Google meant that if any single platform experienced policy issues, algorithm shifts, or creative fatigue, the others could compensate. Single-channel dependency is a risk that large-volume campaigns cannot afford. Diversification isn't just about reach — it's about reliability.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BACK TO PORTFOLIO -->
+<div class="back-to-portfolio">
+  <div>
+    <div class="back-label">← Back to Portfolio</div>
+    <a href="endar-portfolio.html" class="back-title">See All Work</a>
+    <div style="font-family:var(--font-head); font-size:13px; color:var(--muted); margin-top:8px; letter-spacing:1px; text-transform:uppercase;">More case studies · About · Contact</div>
+  </div>
+  <a href="endar-portfolio.html" class="back-arrow">←</a>
+</div>
+
+<footer>
+  <div class="footer-logo">ENDAR</div>
+  <div class="footer-copy">© 2026 Wahyu Endar Subekti</div>
+</footer>
+
+<script>
+  const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+  function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);}
+  animRing();
+  const reveals=document.querySelectorAll('.reveal');
+  const observer=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*60);observer.unobserve(e.target);}});},{threshold:0.1});
+  reveals.forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>

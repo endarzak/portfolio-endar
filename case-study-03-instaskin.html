@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instaskin — Case Study 03 | ENDAR</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2ec;
+    --accent: #ff4d00;
+    --accent2: #ffd000;
+    --gray: #1a1a1a;
+    --mid: #2e2e2e;
+    --muted: #888;
+    --tiktok: #69C9D0;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background:var(--black); color:var(--white); font-family:var(--font-body); font-size:16px; line-height:1.6; overflow-x:hidden; cursor:none; }
+
+  .cursor { width:12px; height:12px; background:var(--accent); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9999; transition:transform 0.15s ease, background 0.2s ease; transform:translate(-50%,-50%); }
+  .cursor-ring { width:36px; height:36px; border:1.5px solid rgba(255,77,0,0.5); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9998; transition:transform 0.35s ease; transform:translate(-50%,-50%); }
+  body:has(a:hover) .cursor { transform:translate(-50%,-50%) scale(2.5); background:var(--accent2); }
+
+  nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:24px 48px; background:linear-gradient(to bottom, rgba(10,10,10,0.95), transparent); backdrop-filter:blur(8px); }
+  .nav-logo { font-family:var(--font-display); font-size:28px; letter-spacing:4px; color:var(--white); text-decoration:none; }
+  .nav-back { display:flex; align-items:center; gap:10px; font-family:var(--font-head); font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(245,242,236,0.6); text-decoration:none; transition:color 0.2s; }
+  .nav-back:hover { color:var(--accent); }
+  .nav-back svg { transition:transform 0.2s; }
+  .nav-back:hover svg { transform:translateX(-4px); }
+
+  .cs-hero { min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end; padding:0 48px 80px; position:relative; overflow:hidden; }
+  .cs-hero-bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 25%, rgba(0,40,50,0.9) 0%, transparent 65%),
+      radial-gradient(ellipse 40% 40% at 85% 75%, rgba(255,77,0,0.07) 0%, transparent 60%);
+  }
+  .hero-grain { position:absolute; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); opacity:0.4; pointer-events:none; }
+  .hero-glow { position:absolute; inset:0; background:radial-gradient(ellipse 60% 50% at 50% 20%, rgba(105,201,208,0.08) 0%, transparent 60%); }
+  .case-num-bg { position:absolute; top:50%; right:-20px; transform:translateY(-50%); font-family:var(--font-display); font-size:clamp(200px,30vw,450px); line-height:1; color:rgba(255,255,255,0.025); letter-spacing:-10px; user-select:none; }
+
+  .cs-tag { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--accent); margin-bottom:16px; opacity:0; animation:fadeUp 0.6s 0.2s forwards; display:flex; align-items:center; gap:12px; }
+  .cs-tag::before { content:''; display:block; width:32px; height:1px; background:var(--accent); }
+  .cs-industry { font-family:var(--font-head); font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:rgba(245,242,236,0.4); margin-bottom:20px; opacity:0; animation:fadeUp 0.6s 0.35s forwards; }
+  .cs-title { font-family:var(--font-display); font-size:clamp(52px,8vw,140px); line-height:0.92; letter-spacing:-1px; opacity:0; animation:fadeUp 0.8s 0.5s forwards; max-width:1100px; }
+  .cs-title em { font-style:normal; color:var(--accent); }
+  .cs-title .outline { -webkit-text-stroke:2px var(--white); color:transparent; }
+
+  .cs-hero-meta { margin-top:40px; display:flex; gap:48px; opacity:0; animation:fadeUp 0.8s 0.7s forwards; }
+  .hero-meta-label { font-family:var(--font-head); font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .hero-meta-val { font-family:var(--font-head); font-size:16px; font-weight:700; color:var(--white); }
+
+  .scroll-indicator { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; opacity:0; animation:fadeUp 0.8s 1s forwards; }
+  .scroll-indicator span { font-family:var(--font-head); font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); }
+  .scroll-line { width:1px; height:48px; background:linear-gradient(to bottom, var(--accent), transparent); animation:scrollAnim 1.5s 1.5s infinite; }
+
+  .ticker-wrap { border-top:1px solid var(--mid); border-bottom:1px solid var(--mid); padding:14px 0; overflow:hidden; }
+  .ticker-track { display:flex; animation:ticker 20s linear infinite; width:max-content; }
+  .ticker-item { font-family:var(--font-display); font-size:14px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); padding:0 40px; white-space:nowrap; }
+  .ticker-item span { color:var(--accent); margin-right:40px; }
+
+  .section { padding:120px 48px; max-width:1400px; margin:0 auto; }
+  .section-alt { background:var(--gray); }
+  .section-alt-inner { max-width:1400px; margin:0 auto; padding-top: 80px; padding-bottom: 80px;}
+
+  .section-label { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--accent); margin-bottom:24px; display:flex; align-items:center; gap:12px; }
+  .section-label::before { content:''; display:block; width:32px; height:1px; background:var(--accent); }
+  .section-title { font-family:var(--font-head); font-size:clamp(32px,4vw,52px); font-weight:800; line-height:1.1; margin-bottom:28px; }
+  .section-title em { font-style:normal; color:var(--accent); }
+
+  .overview-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+  .overview-body { font-size:17px; font-weight:300; color:rgba(245,242,236,0.7); line-height:1.8; }
+  .overview-body p { margin-bottom:20px; }
+  .overview-body strong { color:var(--white); font-weight:500; }
+
+  .metrics-banner { background:var(--gray); border-top:1px solid var(--mid); border-bottom:1px solid var(--mid); padding:64px 48px; }
+  .metrics-grid { max-width:1400px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:2px; }
+  .metric-card { background:var(--black); padding:48px 36px; border-left:3px solid var(--accent); transition:transform 0.3s; position:relative; overflow:hidden; }
+  .metric-card:hover { transform:translateY(-4px); }
+  .metric-card.featured { border-left-color: var(--accent2); }
+  .metric-val { font-family:var(--font-display); font-size:clamp(36px,4vw,64px); color:var(--accent2); line-height:1; letter-spacing:1px; margin-bottom:10px; }
+  .metric-key { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+  .metric-sub { font-size:12px; color:rgba(245,242,236,0.35); margin-top:6px; font-weight:300; }
+
+  /* 3-DAY SNAPSHOT */
+  .snapshot-box {
+    background: linear-gradient(135deg, rgba(105,201,208,0.07) 0%, rgba(255,77,0,0.05) 100%);
+    border:1px solid rgba(105,201,208,0.2);
+    padding:48px; margin-top:48px;
+    position:relative; overflow:hidden;
+  }
+  .snapshot-box::before {
+    content:'3 DAYS';
+    position:absolute; right:-10px; top:50%; transform:translateY(-50%);
+    font-family:var(--font-display); font-size:clamp(80px,12vw,160px);
+    color:rgba(105,201,208,0.05); line-height:1; pointer-events:none;
+  }
+  .snapshot-label { font-family:var(--font-head); font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--tiktok); margin-bottom:20px; }
+  .snapshot-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:40px; }
+  .snapshot-stat {}
+  .snapshot-val { font-family:var(--font-display); font-size:clamp(28px,4vw,52px); color:var(--white); line-height:1; }
+  .snapshot-key { font-family:var(--font-head); font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(245,242,236,0.4); margin-top:6px; }
+
+  /* STRATEGY */
+  .strategy-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; }
+  .strategy-item { padding:32px 0; border-bottom:1px solid var(--mid); }
+  .strategy-item:first-child { padding-top:0; }
+  .strategy-num { font-family:var(--font-display); font-size:60px; color:rgba(255,77,0,0.12); line-height:1; margin-bottom:8px; }
+  .strategy-title { font-family:var(--font-head); font-size:18px; font-weight:700; margin-bottom:12px; }
+  .strategy-body { font-size:15px; font-weight:300; color:rgba(245,242,236,0.6); line-height:1.7; }
+
+  /* PROJECTION */
+  .projection-card {
+    background:linear-gradient(135deg, rgba(255,77,0,0.08) 0%, rgba(255,208,0,0.04) 100%);
+    border:1px solid rgba(255,77,0,0.2);
+    padding:48px; position:relative; overflow:hidden;
+    margin-top:48px;
+  }
+  .projection-card::before {
+    content:'PROJECTION';
+    position:absolute; right:20px; top:20px;
+    font-family:var(--font-head); font-size:10px; font-weight:700;
+    letter-spacing:3px; color:rgba(255,77,0,0.3);
+  }
+  .projection-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:40px; }
+  .proj-item {}
+  .proj-val { font-family:var(--font-display); font-size:clamp(32px,4vw,56px); color:var(--accent2); line-height:1; }
+  .proj-key { font-family:var(--font-head); font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-top:6px; }
+  .proj-note { font-size:12px; color:rgba(245,242,236,0.35); margin-top:6px; font-weight:300; font-style:italic; }
+
+  /* CREATIVE HOOK */
+  .hooks-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; margin-top:40px; }
+  .hook-card {
+    background:var(--black); padding:32px;
+    border-top:2px solid var(--mid); transition:border-color 0.3s, transform 0.3s;
+    position:relative;
+  }
+  .hook-card:hover { border-color:var(--tiktok); transform:translateY(-4px); }
+  .hook-num { font-family:var(--font-display); font-size:48px; color:rgba(255,255,255,0.04); position:absolute; top:16px; right:20px; }
+  .hook-type { font-family:var(--font-head); font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--tiktok); margin-bottom:12px; }
+  .hook-title { font-family:var(--font-head); font-size:17px; font-weight:700; margin-bottom:10px; }
+  .hook-desc { font-size:14px; font-weight:300; color:rgba(245,242,236,0.55); line-height:1.7; }
+  .hook-result { font-family:var(--font-display); font-size:22px; color:var(--accent2); margin-top:16px; }
+  .hook-result-key { font-family:var(--font-head); font-size:9px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+
+  /* LEARNINGS */
+  .learnings-list { display:flex; flex-direction:column; gap:24px; margin-top:40px; }
+  .learning-item { display:flex; gap:24px; align-items:flex-start; padding:28px; background:var(--gray); border-left:3px solid var(--accent); transition:background 0.3s; }
+  .learning-item:hover { background:rgba(255,77,0,0.04); }
+  .learning-icon { font-size:24px; flex-shrink:0; margin-top:2px; }
+  .learning-title { font-family:var(--font-head); font-size:16px; font-weight:700; margin-bottom:8px; }
+  .learning-text { font-size:15px; font-weight:300; color:rgba(245,242,236,0.6); line-height:1.7; }
+
+  .cs-quote { padding:80px 48px; text-align:center; }
+  .cs-quote blockquote { font-family:var(--font-display); font-size:clamp(28px,4vw,52px); color:var(--white); line-height:1.2; max-width:900px; margin:0 auto; position:relative; }
+  .cs-quote blockquote::before { content:'"'; font-family:var(--font-display); font-size:160px; color:rgba(255,77,0,0.1); position:absolute; top:-40px; left:-20px; line-height:1; }
+  .cs-quote em { font-style:normal; color:var(--accent); }
+
+  .next-case { border-top:1px solid var(--mid); padding:80px 48px; display:flex; justify-content:space-between; align-items:center; }
+  .next-label { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+  .next-title { font-family:var(--font-display); font-size:clamp(36px,5vw,72px); color:var(--white); text-decoration:none; display:block; transition:color 0.2s; }
+  .next-title:hover { color:var(--accent); }
+  .next-arrow { font-family:var(--font-display); font-size:80px; color:rgba(255,77,0,0.2); transition:color 0.3s, transform 0.3s; text-decoration:none; }
+  .next-arrow:hover { color:var(--accent); transform:translateX(8px); }
+
+  footer { border-top:1px solid var(--mid); padding:40px 48px; display:flex; justify-content:space-between; align-items:center; }
+  .footer-logo { font-family:var(--font-display); font-size:24px; letter-spacing:4px; color:rgba(245,242,236,0.3); }
+  .footer-copy { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+
+  .section-divider { width:100%; height:1px; background:linear-gradient(90deg, transparent, var(--mid), transparent); }
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.visible { opacity:1; transform:none; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+  @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  @keyframes scrollAnim { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  @media(max-width:900px){
+    nav{padding:20px 24px;} .cs-hero{padding:0 24px 60px;} .section{padding:80px 24px;}
+    .overview-grid,.strategy-grid{grid-template-columns:1fr;gap:40px;}
+    .metrics-grid,.snapshot-grid,.projection-grid,.hooks-grid{grid-template-columns:1fr 1fr;}
+    .next-case{flex-direction:column;gap:32px;padding:60px 24px;}
+    footer{padding:32px 24px;flex-direction:column;gap:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="endar-portfolio.html" class="nav-logo">ENDAR</a>
+  <a href="endar-portfolio.html#work" class="nav-back">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    All Case Studies
+  </a>
+</nav>
+
+<!-- HERO -->
+<section class="cs-hero">
+  <div class="cs-hero-bg"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-glow"></div>
+  <div class="case-num-bg">03</div>
+  <div class="cs-tag">Case Study 03</div>
+  <div class="cs-industry">Aesthetics Clinic / Healthcare</div>
+  <h1 class="cs-title">
+    INSTASKIN<br>
+    <em>TikTok Ads</em><br>
+    <span class="outline">Performance</span>
+  </h1>
+  <div class="cs-hero-meta">
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Client</div>
+      <div class="hero-meta-val">Instaskin Clinic</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Channel</div>
+      <div class="hero-meta-val">TikTok Ads</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Result Window</div>
+      <div class="hero-meta-val">First 3 Days</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Daily Spend</div>
+      <div class="hero-meta-val">IDR 100K / day</div>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <div class="ticker-item"><span>★</span> 9.71% CTR (Day 1-3)</div>
+    <div class="ticker-item"><span>★</span> 51,302 Impressions</div>
+    <div class="ticker-item"><span>★</span> 50+ WA Conversions</div>
+    <div class="ticker-item"><span>★</span> IDR 75 / Conversion</div>
+    <div class="ticker-item"><span>★</span> 600+ Leads/Mo Projected</div>
+    <div class="ticker-item"><span>★</span> 9.71% CTR (Day 1-3)</div>
+    <div class="ticker-item"><span>★</span> 51,302 Impressions</div>
+    <div class="ticker-item"><span>★</span> 50+ WA Conversions</div>
+    <div class="ticker-item"><span>★</span> IDR 75 / Conversion</div>
+    <div class="ticker-item"><span>★</span> 600+ Leads/Mo Projected</div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section reveal">
+  <div class="overview-grid">
+    <div>
+      <div class="section-label">Overview</div>
+      <h2 class="section-title">The <em>Challenge</em></h2>
+      <div class="overview-body">
+        <p>Instaskin, a growing aesthetics clinic, needed to <strong>generate a consistent flow of qualified WhatsApp consultations</strong> from TikTok Ads — with an ultra-lean daily budget of IDR 100,000 per day.</p>
+        <p>The healthcare and aesthetics category on TikTok presents a unique challenge: content must build trust quickly, comply with platform policies around medical claims, and drive a direct action (WhatsApp chat) rather than a passive click.</p>
+        <p>Success meant proving TikTok could work for a <strong>local clinic at minimal spend</strong> — and doing it fast, with measurable results from day one.</p>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">My Role</div>
+      <h2 class="section-title">What I <em>Did</em></h2>
+      <div class="overview-body">
+        <p>Full campaign ownership from brief to optimization:</p>
+        <p>→ TikTok creative brief development (hook, body, CTA structure)<br>
+        → Audience targeting: interest, behavior, and lookalike stacking<br>
+        → TikTok Pixel + WhatsApp conversion event setup<br>
+        → Daily budget pacing and CTR monitoring<br>
+        → 3-day to 30-day performance projection modeling<br>
+        → WA conversion rate optimization recommendations</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- METRICS -->
+<div class="metrics-banner reveal">
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-val">51,302</div>
+      <div class="metric-key">Impressions — Day 1 to 3</div>
+      <div class="metric-sub">Full-funnel awareness at IDR 100K/day</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">9.71%</div>
+      <div class="metric-key">Click-Through Rate</div>
+      <div class="metric-sub">5× TikTok platform average</div>
+    </div>
+    <div class="metric-card featured">
+      <div class="metric-val">50+</div>
+      <div class="metric-key">WhatsApp Conversions</div>
+      <div class="metric-sub">Direct consultation chats</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">IDR 75</div>
+      <div class="metric-key">Cost Per Conversion</div>
+      <div class="metric-sub">Remarkably efficient for healthcare</div>
+    </div>
+  </div>
+</div>
+
+<!-- 3-DAY SNAPSHOT -->
+<div class="section reveal">
+  <div class="section-label">Day 1–3 Snapshot</div>
+  <h2 class="section-title">First 72 Hours: <em>Already Delivering</em></h2>
+  <p style="font-size:17px; font-weight:300; color:rgba(245,242,236,0.6); max-width:720px; line-height:1.8; margin-bottom:0;">The strongest signal of a well-set-up TikTok campaign is early-window performance. These numbers are from the first three days — before TikTok's algorithm even had time to fully optimize.</p>
+  <div class="snapshot-box">
+    <div class="snapshot-label">🕐 Day 1–3 Performance Snapshot</div>
+    <div class="snapshot-grid">
+      <div class="snapshot-stat">
+        <div class="snapshot-val">51,302</div>
+        <div class="snapshot-key">Impressions</div>
+      </div>
+      <div class="snapshot-stat">
+        <div class="snapshot-val">4,982</div>
+        <div class="snapshot-key">Clicks</div>
+      </div>
+      <div class="snapshot-stat">
+        <div class="snapshot-val">50+</div>
+        <div class="snapshot-key">WA Conversions</div>
+      </div>
+      <div class="snapshot-stat">
+        <div class="snapshot-val">IDR 75</div>
+        <div class="snapshot-key">Cost / Conversion</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE -->
+<div class="cs-quote reveal">
+  <blockquote>
+    IDR 100K a day. IDR 75 per consultation. <em>This is what great TikTok setup looks like</em> from day one.
+  </blockquote>
+</div>
+
+<!-- STRATEGY -->
+<div class="section-alt">
+  <div class="section-alt-inner">
+    <div class="section reveal" style="padding-top:0;padding-bottom:0;">
+      <div class="section-label">Strategy</div>
+      <h2 class="section-title">How I'm Built <em>This</em></h2>
+      <div class="strategy-grid">
+        <div>
+          <div class="strategy-item">
+            <div class="strategy-num">01</div>
+            <div class="strategy-title">Healthcare-Native Creative Framework</div>
+            <div class="strategy-body">Developed a creative brief structured around TikTok's native content style: problem-hook (skin concern), transformation teaser (before/after framing), soft social proof, and a low-friction CTA (WA chat — not form). This approach sidesteps TikTok's restrictive medical claim policies while still building urgency.</div>
+          </div>
+          <div class="strategy-item">
+            <div class="strategy-num">02</div>
+            <div class="strategy-title">Audience Stacking for Precision Reach</div>
+            <div class="strategy-body">Combined TikTok interest targeting (Skincare, Beauty & Personal Care, Health & Wellness) with behavioral signals (beauty content engagers, online shoppers for skincare). Added a lookalike audience layer seeded from Instaskin's existing customer WhatsApp list.</div>
+          </div>
+        </div>
+        <div>
+          <div class="strategy-item">
+            <div class="strategy-num">03</div>
+            <div class="strategy-title">WhatsApp as Conversion Destination</div>
+            <div class="strategy-body">Instead of routing users to a landing page (adding friction), set WhatsApp chat as the direct conversion event via TikTok's Click-to-WhatsApp ad format. This frictionless path — from video ad to direct consultation — was a key driver of the IDR 75/conversion efficiency.</div>
+          </div>
+          <div class="strategy-item">
+            <div class="strategy-num">04</div>
+            <div class="strategy-title">Lean Budget Architecture</div>
+            <div class="strategy-body">At IDR 100K/day, budget management matters enormously. Concentrated spend in a single tight ad group initially to help TikTok's algorithm learn faster, avoiding budget fragmentation across multiple campaigns that would slow the learning phase at low daily spend levels.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATIVE HOOKS -->
+<div class="section reveal">
+  <div class="section-label">Creative Testing</div>
+  <h2 class="section-title">Hook <em>Framework</em></h2>
+  <p style="font-size:16px; font-weight:300; color:rgba(245,242,236,0.6); max-width:640px; line-height:1.8; margin-bottom:0;">Three creative hook archetypes were tested to identify what drove the 9.71% CTR. Each follows TikTok's native content rhythm.</p>
+  <div class="hooks-grid">
+    <div class="hook-card">
+      <div class="hook-num">A</div>
+      <div class="hook-type">Problem-First Hook</div>
+      <div class="hook-title">"Kulit kusam meski udah skincare-an?"</div>
+      <div class="hook-desc">Opens with a relatable skin frustration before revealing the clinic solution. Activates scroll-stopping empathy in the first 2 seconds.</div>
+      <div class="hook-result">↑ CTR</div>
+      <div class="hook-result-key">Top Performer</div>
+    </div>
+    <div class="hook-card">
+      <div class="hook-num">B</div>
+      <div class="hook-type">Transformation Hook</div>
+      <div class="hook-title">"Before vs After — after 1x treatment"</div>
+      <div class="hook-desc">Visual-first hook using before/after framing. Strong for beauty categories but requires careful compliance with medical claim guidelines.</div>
+      <div class="hook-result">↑ Watch Time</div>
+      <div class="hook-result-key">Engagement Driver</div>
+    </div>
+    <div class="hook-card">
+      <div class="hook-num">C</div>
+      <div class="hook-type">Social Proof Hook</div>
+      <div class="hook-title">"100+ klien bulan ini — ini hasilnya"</div>
+      <div class="hook-desc">Leads with volume of satisfied customers. Builds trust and FOMO simultaneously. Works best for retargeting audience segments.</div>
+      <div class="hook-result">↑ WA Clicks</div>
+      <div class="hook-result-key">Conversion Booster</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECTION -->
+<div class="section-alt">
+  <div class="section-alt-inner">
+    <div class="section reveal" style="padding-top:0;padding-bottom:0;">
+      <div class="section-label">Scale Projection</div>
+      <h2 class="section-title">If You <em>Scale This</em></h2>
+      <p style="font-size:16px; font-weight:300; color:rgba(245,242,236,0.6); max-width:680px; line-height:1.8;">Based on Day 1–3 performance data, here's the projected monthly output if daily spend is maintained at IDR 100K. This assumes algorithm maturation improving efficiency by ~15%.</p>
+      <div class="projection-card">
+        <div class="projection-grid">
+          <div class="proj-item">
+            <div class="proj-val">600+</div>
+            <div class="proj-key">Leads / Month</div>
+            <div class="proj-note">Projected at IDR 100K/day sustained</div>
+          </div>
+          <div class="proj-item">
+            <div class="proj-val">~IDR 5K</div>
+            <div class="proj-key">Projected CPL</div>
+            <div class="proj-note">After algorithm matures (30+ days)</div>
+          </div>
+          <div class="proj-item">
+            <div class="proj-val">IDR 3M</div>
+            <div class="proj-key">Monthly Ad Spend</div>
+            <div class="proj-note">Scalable to 2× for 1,200+ leads</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEARNINGS -->
+<div class="section reveal">
+  <div class="section-label">Takeaways</div>
+  <h2 class="section-title">Key <em>Learnings</em></h2>
+  <div class="learnings-list">
+    <div class="learning-item">
+      <div class="learning-icon">⚡</div>
+      <div>
+        <div class="learning-title">TikTok delivers fast signal — if setup is right</div>
+        <div class="learning-text">Unlike Google Ads where learning phases take weeks, a properly structured TikTok campaign signals quality within 24-72 hours. A 9.71% CTR from day one isn't luck — it's the result of precise audience targeting, platform-native creative, and the right conversion event. The setup work before launch determines early performance more than any mid-campaign optimization.</div>
+      </div>
+    </div>
+    <div class="learning-item">
+      <div class="learning-icon">💬</div>
+      <div>
+        <div class="learning-title">WhatsApp as CTA removes the biggest drop-off point</div>
+        <div class="learning-text">For local service businesses, directing users to a form or website introduces friction and a significant drop-off rate. WhatsApp Click-to-Chat eliminates the middle layer — the user moves directly from TikTok video to active conversation with the clinic. This single UX decision is what makes IDR 75/conversion possible at IDR 100K/day.</div>
+      </div>
+    </div>
+    <div class="learning-item">
+      <div class="learning-icon">🧠</div>
+      <div>
+        <div class="learning-title">Lean budgets require concentrated structure, not spread</div>
+        <div class="learning-text">The instinct with small budgets is to spread across multiple campaigns to "test everything." The opposite is true: TikTok's algorithm learns faster with concentrated spend in one focused ad group. At IDR 100K/day, every rupiah needs to feed a single learning pool — not be diluted across fragmented campaigns that never exit the learning phase.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="next-case">
+  <div>
+    <div class="next-label">Next Case Study</div>
+    <a href="case-study-04-first-media.html" class="next-title">First Media →</a>
+    <div style="font-family:var(--font-head); font-size:13px; color:var(--muted); margin-top:8px; letter-spacing:1px; text-transform:uppercase;">Telecom / ISP — Lead Acquisition</div>
+  </div>
+  <a href="case-study-04-first-media.html" class="next-arrow">→</a>
+</div>
+
+<footer>
+  <div class="footer-logo">ENDAR</div>
+  <div class="footer-copy">© 2026 Wahyu Endar Subekti</div>
+</footer>
+
+<script>
+  const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+  function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);}
+  animRing();
+  const reveals=document.querySelectorAll('.reveal');
+  const observer=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*60);observer.unobserve(e.target);}});},{threshold:0.1});
+  reveals.forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>

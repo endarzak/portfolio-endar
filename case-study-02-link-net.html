@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Link Net Fiber — Case Study 02 | ENDAR</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2ec;
+    --accent: #ff4d00;
+    --accent2: #ffd000;
+    --gray: #1a1a1a;
+    --mid: #2e2e2e;
+    --muted: #888;
+    --channel: #4285F4;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background:var(--black); color:var(--white); font-family:var(--font-body); font-size:16px; line-height:1.6; overflow-x:hidden; cursor:none; }
+
+  .cursor { width:12px; height:12px; background:var(--accent); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9999; transition:transform 0.15s ease, background 0.2s ease; transform:translate(-50%,-50%); }
+  .cursor-ring { width:36px; height:36px; border:1.5px solid rgba(255,77,0,0.5); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9998; transition:transform 0.35s ease; transform:translate(-50%,-50%); }
+  body:has(a:hover) .cursor { transform:translate(-50%,-50%) scale(2.5); background:var(--accent2); }
+
+  nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:24px 48px; background:linear-gradient(to bottom, rgba(10,10,10,0.95), transparent); backdrop-filter:blur(8px); }
+  .nav-logo { font-family:var(--font-display); font-size:28px; letter-spacing:4px; color:var(--white); text-decoration:none; }
+  .nav-back { display:flex; align-items:center; gap:10px; font-family:var(--font-head); font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(245,242,236,0.6); text-decoration:none; transition:color 0.2s; }
+  .nav-back:hover { color:var(--accent); }
+  .nav-back svg { transition:transform 0.2s; }
+  .nav-back:hover svg { transform:translateX(-4px); }
+
+  /* HERO — Google Blue theme */
+  .cs-hero { min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end; padding:0 48px 80px; position:relative; overflow:hidden; }
+  .cs-hero-bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 70% 60% at 65% 30%, rgba(10,30,80,0.85) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 10% 80%, rgba(255,77,0,0.06) 0%, transparent 60%);
+  }
+  .hero-grain { position:absolute; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); opacity:0.4; pointer-events:none; }
+  .hero-glow { position:absolute; inset:0; background:radial-gradient(ellipse 70% 60% at 55% 25%, rgba(66,133,244,0.1) 0%, transparent 60%); }
+  .case-num-bg { position:absolute; top:50%; right:-20px; transform:translateY(-50%); font-family:var(--font-display); font-size:clamp(200px,30vw,450px); line-height:1; color:rgba(255,255,255,0.025); letter-spacing:-10px; user-select:none; }
+
+  .cs-tag { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--accent); margin-bottom:16px; opacity:0; animation:fadeUp 0.6s 0.2s forwards; display:flex; align-items:center; gap:12px; }
+  .cs-tag::before { content:''; display:block; width:32px; height:1px; background:var(--accent); }
+  .cs-industry { font-family:var(--font-head); font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:rgba(245,242,236,0.4); margin-bottom:20px; opacity:0; animation:fadeUp 0.6s 0.35s forwards; }
+  .cs-title { font-family:var(--font-display); font-size:clamp(52px,8vw,140px); line-height:0.92; letter-spacing:-1px; opacity:0; animation:fadeUp 0.8s 0.5s forwards; max-width:1100px; }
+  .cs-title em { font-style:normal; color:var(--accent); }
+  .cs-title .outline { -webkit-text-stroke:2px var(--white); color:transparent; }
+
+  .cs-hero-meta { margin-top:40px; display:flex; gap:48px; opacity:0; animation:fadeUp 0.8s 0.7s forwards; }
+  .hero-meta-label { font-family:var(--font-head); font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .hero-meta-val { font-family:var(--font-head); font-size:16px; font-weight:700; color:var(--white); }
+
+  .scroll-indicator { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; opacity:0; animation:fadeUp 0.8s 1s forwards; }
+  .scroll-indicator span { font-family:var(--font-head); font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); }
+  .scroll-line { width:1px; height:48px; background:linear-gradient(to bottom, var(--accent), transparent); animation:scrollAnim 1.5s 1.5s infinite; }
+
+  .ticker-wrap { border-top:1px solid var(--mid); border-bottom:1px solid var(--mid); padding:14px 0; overflow:hidden; }
+  .ticker-track { display:flex; gap:0; animation:ticker 20s linear infinite; width:max-content; }
+  .ticker-item { font-family:var(--font-display); font-size:14px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); padding:0 40px; white-space:nowrap; }
+  .ticker-item span { color:var(--accent); margin-right:40px; }
+
+  .section { padding:120px 48px; max-width:1400px; margin:0 auto; }
+  .section-alt { background:var(--gray); }
+  .section-alt-inner { max-width:1400px; margin:0 auto; padding-top: 80px; padding-bottom: 80px;}
+
+  .section-label { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--accent); margin-bottom:24px; display:flex; align-items:center; gap:12px; }
+  .section-label::before { content:''; display:block; width:32px; height:1px; background:var(--accent); }
+  .section-title { font-family:var(--font-head); font-size:clamp(32px,4vw,52px); font-weight:800; line-height:1.1; margin-bottom:28px; }
+  .section-title em { font-style:normal; color:var(--accent); }
+
+  .overview-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+  .overview-body { font-size:17px; font-weight:300; color:rgba(245,242,236,0.7); line-height:1.8; }
+  .overview-body p { margin-bottom:20px; }
+  .overview-body strong { color:var(--white); font-weight:500; }
+
+  /* METRICS */
+  .metrics-banner { background:var(--gray); border-top:1px solid var(--mid); border-bottom:1px solid var(--mid); padding:64px 48px; }
+  .metrics-grid { max-width:1400px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+  .metric-card { background:var(--black); padding:48px 36px; border-left:3px solid var(--accent); transition:transform 0.3s; }
+  .metric-card:hover { transform:translateY(-4px); }
+  .metric-val { font-family:var(--font-display); font-size:clamp(42px,5vw,72px); color:var(--accent2); line-height:1; letter-spacing:1px; margin-bottom:10px; }
+  .metric-key { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+
+  /* SEM FUNNEL */
+  .funnel-wrap { margin-top:48px; }
+  .funnel-step {
+    display:grid; grid-template-columns:80px 1fr auto;
+    gap:32px; align-items:center;
+    padding:28px 0; border-bottom:1px solid var(--mid);
+  }
+  .funnel-step:first-child { padding-top:0; }
+  .funnel-icon { width:56px; height:56px; background:rgba(255,77,0,0.1); border:1px solid rgba(255,77,0,0.3); display:flex; align-items:center; justify-content:center; font-size:24px; }
+  .funnel-label { font-family:var(--font-head); font-size:18px; font-weight:700; margin-bottom:6px; }
+  .funnel-desc { font-size:14px; font-weight:300; color:rgba(245,242,236,0.55); }
+  .funnel-num { font-family:var(--font-display); font-size:36px; color:var(--accent2); text-align:right; white-space:nowrap; }
+
+  /* STRATEGY */
+  .strategy-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; }
+  .strategy-item { padding:32px 0; border-bottom:1px solid var(--mid); }
+  .strategy-item:first-child { padding-top:0; }
+  .strategy-num { font-family:var(--font-display); font-size:60px; color:rgba(255,77,0,0.12); line-height:1; margin-bottom:8px; }
+  .strategy-title { font-family:var(--font-head); font-size:18px; font-weight:700; margin-bottom:12px; }
+  .strategy-body { font-size:15px; font-weight:300; color:rgba(245,242,236,0.6); line-height:1.7; }
+
+  /* TIMELINE */
+  .timeline { margin-top:40px; position:relative; }
+  .timeline::before { content:''; position:absolute; left:28px; top:0; bottom:0; width:2px; background:linear-gradient(to bottom, var(--accent), transparent); }
+  .timeline-item { display:flex; gap:32px; margin-bottom:40px; position:relative; }
+  .timeline-dot { width:56px; height:56px; background:var(--gray); border:2px solid var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:20px; color:var(--accent); flex-shrink:0; z-index:1; }
+  .timeline-content { padding-top:12px; }
+  .timeline-month { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+  .timeline-title { font-family:var(--font-head); font-size:18px; font-weight:700; margin-bottom:8px; }
+  .timeline-body { font-size:15px; font-weight:300; color:rgba(245,242,236,0.6); line-height:1.7; }
+
+  /* KW TABLE */
+  .kw-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; margin-top:40px; }
+  .kw-card { background:var(--black); padding:28px; border-left:2px solid var(--accent2); }
+  .kw-type { font-family:var(--font-head); font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
+  .kw-list { font-size:14px; font-weight:300; color:rgba(245,242,236,0.6); line-height:2; }
+
+  /* LEARNINGS */
+  .learnings-list { display:flex; flex-direction:column; gap:24px; margin-top:40px; }
+  .learning-item { display:flex; gap:24px; align-items:flex-start; padding:28px; background:var(--gray); border-left:3px solid var(--accent); transition:background 0.3s; }
+  .learning-item:hover { background:rgba(255,77,0,0.04); }
+  .learning-icon { font-size:24px; flex-shrink:0; margin-top:2px; }
+  .learning-title { font-family:var(--font-head); font-size:16px; font-weight:700; margin-bottom:8px; }
+  .learning-text { font-size:15px; font-weight:300; color:rgba(245,242,236,0.6); line-height:1.7; }
+
+  /* QUOTE */
+  .cs-quote { padding:80px 48px; text-align:center; }
+  .cs-quote blockquote { font-family:var(--font-display); font-size:clamp(28px,4vw,52px); color:var(--white); line-height:1.2; max-width:900px; margin:0 auto; position:relative; }
+  .cs-quote blockquote::before { content:'"'; font-family:var(--font-display); font-size:160px; color:rgba(255,77,0,0.1); position:absolute; top:-40px; left:-20px; line-height:1; }
+  .cs-quote em { font-style:normal; color:var(--accent); }
+
+  .next-case { border-top:1px solid var(--mid); padding:80px 48px; display:flex; justify-content:space-between; align-items:center; }
+  .next-label { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+  .next-title { font-family:var(--font-display); font-size:clamp(36px,5vw,72px); color:var(--white); text-decoration:none; display:block; transition:color 0.2s; }
+  .next-title:hover { color:var(--accent); }
+  .next-arrow { font-family:var(--font-display); font-size:80px; color:rgba(255,77,0,0.2); transition:color 0.3s, transform 0.3s; text-decoration:none; }
+  .next-arrow:hover { color:var(--accent); transform:translateX(8px); }
+
+  footer { border-top:1px solid var(--mid); padding:40px 48px; display:flex; justify-content:space-between; align-items:center; }
+  .footer-logo { font-family:var(--font-display); font-size:24px; letter-spacing:4px; color:rgba(245,242,236,0.3); }
+  .footer-copy { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+
+  .section-divider { width:100%; height:1px; background:linear-gradient(90deg, transparent, var(--mid), transparent); }
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.visible { opacity:1; transform:none; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+  @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  @keyframes scrollAnim { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  @media(max-width:900px){
+    nav{padding:20px 24px;} .cs-hero{padding:0 24px 60px;} .section{padding:80px 24px;}
+    .overview-grid,.strategy-grid{grid-template-columns:1fr;gap:40px;}
+    .metrics-grid{grid-template-columns:1fr;}
+    .funnel-step{grid-template-columns:56px 1fr;} .funnel-num{display:none;}
+    .kw-grid{grid-template-columns:1fr;}
+    .next-case{flex-direction:column;gap:32px;padding:60px 24px;}
+    footer{padding:32px 24px;flex-direction:column;gap:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="endar-portfolio.html" class="nav-logo">ENDAR</a>
+  <a href="endar-portfolio.html#work" class="nav-back">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    All Case Studies
+  </a>
+</nav>
+
+<!-- HERO -->
+<section class="cs-hero">
+  <div class="cs-hero-bg"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-glow"></div>
+  <div class="case-num-bg">02</div>
+  <div class="cs-tag">Case Study 02</div>
+  <div class="cs-industry">Telecom / ISP</div>
+  <h1 class="cs-title">
+    LINK NET<br>
+    <span class="outline">Fiber</span> <em>SEM</em><br>
+    Lead Gen
+  </h1>
+  <div class="cs-hero-meta">
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Client</div>
+      <div class="hero-meta-val">Link Net</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Channel</div>
+      <div class="hero-meta-val">Google Ads SEM</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Duration</div>
+      <div class="hero-meta-val">3 Months</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Budget</div>
+      <div class="hero-meta-val">IDR 35M</div>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <div class="ticker-item"><span>★</span> 500K+ Impressions</div>
+    <div class="ticker-item"><span>★</span> 1,020 Qualified Leads</div>
+    <div class="ticker-item"><span>★</span> ~IDR 34K Avg CPL</div>
+    <div class="ticker-item"><span>★</span> 3-Month Campaign</div>
+    <div class="ticker-item"><span>★</span> IDR 35M Budget</div>
+    <div class="ticker-item"><span>★</span> 500K+ Impressions</div>
+    <div class="ticker-item"><span>★</span> 1,020 Qualified Leads</div>
+    <div class="ticker-item"><span>★</span> ~IDR 34K Avg CPL</div>
+    <div class="ticker-item"><span>★</span> 3-Month Campaign</div>
+    <div class="ticker-item"><span>★</span> IDR 35M Budget</div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section reveal">
+  <div class="overview-grid">
+    <div>
+      <div class="section-label">Overview</div>
+      <h2 class="section-title">The <em>Challenge</em></h2>
+      <div class="overview-body">
+        <p>Link Net — one of Indonesia's leading fiber internet providers — needed a <strong>cost-efficient Google Ads SEM strategy</strong> to generate qualified leads for their residential fiber packages across target service areas.</p>
+        <p>The challenge: ISP SEM is fiercely competitive. Keywords like "internet fiber" and "WiFi rumah" are crowded with large telco brands bidding aggressively, making cost-per-lead efficiency critical for a meaningful ROI.</p>
+        <p>The goal was to deliver <strong>high-intent form submissions</strong> — not vanity clicks — within a defined IDR 35M budget across three months, with a clear CPL target.</p>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">My Role</div>
+      <h2 class="section-title">What I <em>Did</em></h2>
+      <div class="overview-body">
+        <p>I managed this campaign end-to-end as the dedicated Google Ads SEM strategist:</p>
+        <p>→ Keyword research, match-type strategy, and negative keyword management<br>
+        → Ad copy A/B testing across 3+ variants per ad group<br>
+        → Bid strategy management (manual CPC → Target CPA transition)<br>
+        → Landing page feedback to optimize for Quality Score<br>
+        → Monthly reporting with CPL tracking and optimization recommendations<br>
+        → Geographic targeting refinement based on Link Net service coverage</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- METRICS -->
+<div class="metrics-banner reveal">
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-val">500K+</div>
+      <div class="metric-key">Total Impressions Delivered</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">1,020</div>
+      <div class="metric-key">Qualified Form Submissions</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">~IDR 34K</div>
+      <div class="metric-key">Average Cost Per Lead</div>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE -->
+<div class="cs-quote reveal">
+  <blockquote>
+    In ISP SEM, every click costs — making the <em>1,020 qualified leads</em> at IDR 34K/lead the real win here.
+  </blockquote>
+</div>
+
+<!-- FUNNEL -->
+<div class="section-alt">
+  <div class="section-alt-inner">
+    <div class="section reveal" style="padding-top:0;padding-bottom:0;">
+      <div class="section-label">Campaign Funnel</div>
+      <h2 class="section-title">From Search to <em>Lead</em></h2>
+      <div class="funnel-wrap">
+        <div class="funnel-step">
+          <div class="funnel-icon">🔍</div>
+          <div>
+            <div class="funnel-label">Search Impression</div>
+            <div class="funnel-desc">Users searched high-intent keywords for fiber internet in Link Net coverage areas</div>
+          </div>
+          <div class="funnel-num">500K+</div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-icon">👆</div>
+          <div>
+            <div class="funnel-label">Ad Click</div>
+            <div class="funnel-desc">Clicked through to landing page via optimized Search ads with strong CTA</div>
+          </div>
+          <div class="funnel-num">~15K</div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-icon">📋</div>
+          <div>
+            <div class="funnel-label">Landing Page Visit</div>
+            <div class="funnel-desc">Landed on service coverage & package comparison page</div>
+          </div>
+          <div class="funnel-num">~12K</div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-icon">✅</div>
+          <div>
+            <div class="funnel-label">Form Submission (Lead)</div>
+            <div class="funnel-desc">Completed lead form with name, contact, and service address</div>
+          </div>
+          <div class="funnel-num">1,020</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STRATEGY -->
+<div class="section reveal">
+  <div class="section-label">Approach</div>
+  <h2 class="section-title">SEM <em>Strategy</em></h2>
+  <div class="strategy-grid">
+    <div>
+      <div class="strategy-item">
+        <div class="strategy-num">01</div>
+        <div class="strategy-title">Intent-Layered Keyword Architecture</div>
+        <div class="strategy-body">Built a tiered keyword structure separating high-intent commercial terms (e.g. "pasang internet fiber") from informational queries. Applied exact match for hottest terms and phrase match for volume, with aggressive negative keyword management to protect budget from irrelevant queries.</div>
+      </div>
+      <div class="strategy-item">
+        <div class="strategy-num">02</div>
+        <div class="strategy-title">Ad Copy Testing Framework</div>
+        <div class="strategy-body">Ran 3 RSA (Responsive Search Ad) variants per ad group with distinct value props: speed-focused ("50 Mbps Tanpa Batas"), price-focused ("Internet Rumah Mulai 200K"), and reliability-focused ("Fiber Optik, Sinyal Stabil"). Speed messaging consistently outperformed by 22% CTR.</div>
+      </div>
+    </div>
+    <div>
+      <div class="strategy-item">
+        <div class="strategy-num">03</div>
+        <div class="strategy-title">Bid Strategy Progression</div>
+        <div class="strategy-body">Started Month 1 on Manual CPC to accumulate conversion data, transitioned to Target CPA bidding in Month 2 once 30+ conversions were recorded. This Smart Bidding shift drove a 18% improvement in CPL from Month 1 to Month 3.</div>
+      </div>
+      <div class="strategy-item">
+        <div class="strategy-num">04</div>
+        <div class="strategy-title">Geographic & Schedule Optimization</div>
+        <div class="strategy-body">Mapped Link Net's fiber coverage zones and restricted targeting to serviceable areas only — eliminating wasted spend on clicks from out-of-service regions. Applied bid adjustments boosting spend during 7–9pm peak home-internet search windows.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KEYWORD STRATEGY -->
+<div class="section-alt">
+  <div class="section-alt-inner">
+    <div class="section reveal" style="padding-top:0;padding-bottom:0;">
+      <div class="section-label">Keyword Strategy</div>
+      <h2 class="section-title">Search Intent <em>Mapping</em></h2>
+      <div class="kw-grid">
+        <div class="kw-card">
+          <div class="kw-type">🔴 High Intent — Exact Match</div>
+          <div class="kw-list">
+            [pasang internet fiber]<br>
+            [berlangganan link net]<br>
+            [internet rumah jakarta]<br>
+            [fiber optik rumah]
+          </div>
+        </div>
+        <div class="kw-card">
+          <div class="kw-type">🟡 Mid Intent — Phrase Match</div>
+          <div class="kw-list">
+            "internet fiber murah"<br>
+            "kecepatan internet rumah"<br>
+            "paket internet unlimited"<br>
+            "wifi rumah stabil"
+          </div>
+        </div>
+        <div class="kw-card">
+          <div class="kw-type">⛔ Negatives (Budget Protection)</div>
+          <div class="kw-list">
+            -gratis -free<br>
+            -internet kantor -bisnis<br>
+            -mifi -modem<br>
+            -smartfren -telkomsel
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MONTHLY TIMELINE -->
+<div class="section reveal">
+  <div class="section-label">Campaign Timeline</div>
+  <h2 class="section-title">Month-by-Month <em>Progress</em></h2>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot">M1</div>
+      <div class="timeline-content">
+        <div class="timeline-month">Month One — Setup & Data Collection</div>
+        <div class="timeline-title">Manual CPC · Foundation Building</div>
+        <div class="timeline-body">Launched with Manual CPC bidding across 5 core ad groups. Collected initial Quality Score data, identified top-performing keywords, and ran first round of ad copy A/B tests. Initial CPL landed above target — expected during data accumulation phase.</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">M2</div>
+      <div class="timeline-content">
+        <div class="timeline-month">Month Two — Transition & Optimization</div>
+        <div class="timeline-title">Target CPA Activated · Negative Expansion</div>
+        <div class="timeline-body">Transitioned to Target CPA Smart Bidding after hitting 30+ conversion threshold. Expanded negative keyword list by 40 terms, paused 3 underperforming ad groups, and introduced ad schedule bid adjustments. CPL began declining toward target.</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">M3</div>
+      <div class="timeline-content">
+        <div class="timeline-month">Month Three — Scale & Efficiency</div>
+        <div class="timeline-title">IDR 34K CPL Achieved · 1,020 Total Leads</div>
+        <div class="timeline-body">Smart Bidding matured and delivered best-in-campaign efficiency. Final month generated the highest lead volume with the lowest CPL. Total campaign: 500K+ impressions, 1,020 qualified form submissions, IDR 34K average CPL across full 3-month run.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEARNINGS -->
+<div class="section-alt">
+  <div class="section-alt-inner">
+    <div class="section reveal" style="padding-top:0;padding-bottom:0;">
+      <div class="section-label">Takeaways</div>
+      <h2 class="section-title">Key <em>Learnings</em></h2>
+      <div class="learnings-list">
+        <div class="learning-item">
+          <div class="learning-icon">🎯</div>
+          <div>
+            <div class="learning-title">Patient bidding strategy is a performance multiplier</div>
+            <div class="learning-text">Starting with Manual CPC and only switching to Smart Bidding after collecting meaningful conversion data was the critical decision. Jumping to Target CPA too early — before Google's algorithm has sufficient signal — leads to wasted spend. The Month 1 foundation made Month 3's efficiency possible.</div>
+          </div>
+        </div>
+        <div class="learning-item">
+          <div class="learning-icon">🗺️</div>
+          <div>
+            <div class="learning-title">Geographic precision is non-negotiable for ISPs</div>
+            <div class="learning-text">ISP campaigns bleed budget on leads from non-serviceable areas. Mapping Link Net's actual fiber coverage zones and restricting targeting accordingly eliminated a significant source of wasted clicks. This geographic filter alone improved lead quality noticeably.</div>
+          </div>
+        </div>
+        <div class="learning-item">
+          <div class="learning-icon">✍️</div>
+          <div>
+            <div class="learning-title">Speed messaging dominates for fiber internet categories</div>
+            <div class="learning-text">Testing three messaging pillars revealed that speed-centric ad copy outperformed price and reliability messaging by 22% in CTR. Indonesian consumers searching for home fiber were primarily motivated by speed promises — a category-specific insight that informed all future copy iterations.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="next-case">
+  <div>
+    <div class="next-label">Next Case Study</div>
+    <a href="case-study-03-instaskin.html" class="next-title">Instaskin →</a>
+    <div style="font-family:var(--font-head); font-size:13px; color:var(--muted); margin-top:8px; letter-spacing:1px; text-transform:uppercase;">Aesthetics Clinic — TikTok Ads</div>
+  </div>
+  <a href="case-study-03-instaskin.html" class="next-arrow">→</a>
+</div>
+
+<footer>
+  <div class="footer-logo">ENDAR</div>
+  <div class="footer-copy">© 2026 Wahyu Endar Subekti</div>
+</footer>
+
+<script>
+  const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+  function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);}
+  animRing();
+  const reveals=document.querySelectorAll('.reveal');
+  const observer=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*60);observer.unobserve(e.target);}});},{threshold:0.1});
+  reveals.forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
