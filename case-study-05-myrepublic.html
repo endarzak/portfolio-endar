@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyRepublic — Case Study 05 | ENDAR</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2ec;
+    --accent: #ff4d00;
+    --accent2: #ffd000;
+    --gray: #1a1a1a;
+    --mid: #2e2e2e;
+    --muted: #888;
+    --google: #4285F4;
+    --green: #22c55e;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background:var(--black); color:var(--white); font-family:var(--font-body); font-size:16px; line-height:1.6; overflow-x:hidden; cursor:none; }
+
+  /* CURSOR */
+  .cursor { width:12px; height:12px; background:var(--accent); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9999; transition:transform 0.15s ease, background 0.2s ease; transform:translate(-50%,-50%); }
+  .cursor-ring { width:36px; height:36px; border:1.5px solid rgba(255,77,0,0.5); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9998; transition:transform 0.35s ease; transform:translate(-50%,-50%); }
+  body:has(a:hover) .cursor { transform:translate(-50%,-50%) scale(2.5); background:var(--accent2); }
+
+  /* NAV */
+  nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:24px 48px; background:linear-gradient(to bottom, rgba(10,10,10,0.95), transparent); backdrop-filter:blur(8px); }
+  .nav-logo { font-family:var(--font-display); font-size:28px; letter-spacing:4px; color:var(--white); text-decoration:none; }
+  .nav-back { display:flex; align-items:center; gap:10px; font-family:var(--font-head); font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:rgba(245,242,236,0.6); text-decoration:none; transition:color 0.2s; }
+  .nav-back:hover { color:var(--accent); }
+  .nav-back svg { transition:transform 0.2s; }
+  .nav-back:hover svg { transform:translateX(-4px); }
+
+  /* HERO — deep navy/green tint for ISP + direct sales feel */
+  .cs-hero { min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end; padding:0 48px 80px; position:relative; overflow:hidden; }
+  .cs-hero-bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 75% 65% at 55% 25%, rgba(0,20,50,0.92) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 45% at 5% 75%, rgba(34,197,94,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse 35% 35% at 95% 85%, rgba(255,77,0,0.06) 0%, transparent 50%);
+  }
+  .hero-grain { position:absolute; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); opacity:0.4; pointer-events:none; }
+  .hero-glow { position:absolute; inset:0; background:radial-gradient(ellipse 60% 50% at 50% 20%, rgba(66,133,244,0.09) 0%, transparent 60%); }
+  .case-num-bg { position:absolute; top:50%; right:-20px; transform:translateY(-50%); font-family:var(--font-display); font-size:clamp(200px,30vw,450px); line-height:1; color:rgba(255,255,255,0.025); letter-spacing:-10px; user-select:none; }
+
+  .cs-tag { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--accent); margin-bottom:16px; opacity:0; animation:fadeUp 0.6s 0.2s forwards; display:flex; align-items:center; gap:12px; }
+  .cs-tag::before { content:''; display:block; width:32px; height:1px; background:var(--accent); }
+  .cs-industry { font-family:var(--font-head); font-size:12px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:rgba(245,242,236,0.4); margin-bottom:20px; opacity:0; animation:fadeUp 0.6s 0.35s forwards; }
+  .cs-title { font-family:var(--font-display); font-size:clamp(52px,8vw,140px); line-height:0.92; letter-spacing:-1px; opacity:0; animation:fadeUp 0.8s 0.5s forwards; max-width:1100px; }
+  .cs-title em { font-style:normal; color:var(--accent); }
+  .cs-title .outline { -webkit-text-stroke:2px var(--white); color:transparent; }
+
+  .cs-hero-meta { margin-top:40px; display:flex; gap:48px; flex-wrap:wrap; opacity:0; animation:fadeUp 0.8s 0.7s forwards; }
+  .hero-meta-item {}
+  .hero-meta-label { font-family:var(--font-head); font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .hero-meta-val { font-family:var(--font-head); font-size:16px; font-weight:700; color:var(--white); }
+
+  .scroll-indicator { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; opacity:0; animation:fadeUp 0.8s 1s forwards; }
+  .scroll-indicator span { font-family:var(--font-head); font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); }
+  .scroll-line { width:1px; height:48px; background:linear-gradient(to bottom, var(--accent), transparent); animation:scrollAnim 1.5s 1.5s infinite; }
+
+  /* TICKER */
+  .ticker-wrap { border-top:1px solid var(--mid); border-bottom:1px solid var(--mid); padding:14px 0; overflow:hidden; }
+  .ticker-track { display:flex; animation:ticker 22s linear infinite; width:max-content; }
+  .ticker-item { font-family:var(--font-display); font-size:14px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); padding:0 40px; white-space:nowrap; }
+  .ticker-item span { color:var(--accent); margin-right:40px; }
+
+  /* LAYOUT */
+  .section { padding:120px 48px; max-width:1400px; margin:0 auto; }
+  .section-alt { background:var(--gray); }
+  .section-alt-inner { max-width:1400px; margin:0 auto; }
+  .section-divider { width:100%; height:1px; background:linear-gradient(90deg, transparent, var(--mid), transparent); }
+
+  .section-label { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:4px; text-transform:uppercase; color:var(--accent); margin-bottom:24px; display:flex; align-items:center; gap:12px; }
+  .section-label::before { content:''; display:block; width:32px; height:1px; background:var(--accent); }
+  .section-title { font-family:var(--font-head); font-size:clamp(32px,4vw,52px); font-weight:800; line-height:1.1; margin-bottom:28px; }
+  .section-title em { font-style:normal; color:var(--accent); }
+
+  .overview-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; }
+  .overview-body { font-size:17px; font-weight:300; color:rgba(245,242,236,0.7); line-height:1.8; }
+  .overview-body p { margin-bottom:20px; }
+  .overview-body strong { color:var(--white); font-weight:500; }
+
+  /* KEY METRICS — 5 cards for this one */
+  .metrics-banner { background:var(--gray); border-top:1px solid var(--mid); border-bottom:1px solid var(--mid); padding:64px 48px; }
+  .metrics-grid-5 { max-width:1400px; margin:0 auto; display:grid; grid-template-columns:repeat(5,1fr); gap:2px; }
+  .metric-card { background:var(--black); padding:44px 32px; border-left:3px solid var(--accent); transition:transform 0.3s; position:relative; overflow:hidden; }
+  .metric-card:hover { transform:translateY(-4px); }
+  .metric-card.sales { border-left-color:var(--green); }
+  .metric-card::after { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 70% 60% at 50% 0%, rgba(255,77,0,0.04), transparent); pointer-events:none; }
+  .metric-card.sales::after { background:radial-gradient(ellipse 70% 60% at 50% 0%, rgba(34,197,94,0.05), transparent); }
+  .metric-val { font-family:var(--font-display); font-size:clamp(32px,4vw,60px); color:var(--accent2); line-height:1; letter-spacing:1px; margin-bottom:10px; }
+  .metric-card.sales .metric-val { color:var(--green); }
+  .metric-key { font-family:var(--font-head); font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+  .metric-sub { font-size:12px; color:rgba(245,242,236,0.3); margin-top:6px; font-weight:300; font-style:italic; }
+
+  /* FULL FUNNEL VISUALIZATION */
+  .funnel-section { padding:80px 48px; }
+  .funnel-inner { max-width:1400px; margin:0 auto; }
+  .funnel-flow { display:flex; align-items:stretch; gap:0; margin-top:48px; position:relative; }
+  .funnel-step {
+    flex:1; padding:40px 28px; background:var(--gray);
+    position:relative; text-align:center;
+    border-right:1px solid var(--mid);
+    transition:background 0.3s;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%);
+    margin-right: -1px;
+  }
+  .funnel-step:last-child {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    border-right: none;
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.25);
+  }
+  .funnel-step:hover { background:rgba(255,77,0,0.04); }
+  .funnel-step:last-child:hover { background:rgba(34,197,94,0.12); }
+  .funnel-stage { font-family:var(--font-head); font-size:9px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
+  .funnel-step:last-child .funnel-stage { color:var(--green); }
+  .funnel-num { font-family:var(--font-display); font-size:clamp(28px,4vw,48px); color:var(--white); line-height:1; margin-bottom:8px; }
+  .funnel-step:last-child .funnel-num { color:var(--green); }
+  .funnel-label { font-family:var(--font-head); font-size:12px; font-weight:600; color:rgba(245,242,236,0.5); margin-bottom:12px; }
+  .funnel-rate { display:inline-block; font-family:var(--font-head); font-size:10px; font-weight:700; letter-spacing:1px; padding:4px 10px; background:rgba(255,77,0,0.1); color:var(--accent); border:1px solid rgba(255,77,0,0.2); }
+  .funnel-step:last-child .funnel-rate { background:rgba(34,197,94,0.1); color:var(--green); border-color:rgba(34,197,94,0.2); }
+
+  /* EFFICIENCY CALLOUT */
+  .efficiency-block {
+    display:grid; grid-template-columns:1fr 1fr; gap:2px;
+    margin-top:48px;
+  }
+  .eff-card { background:var(--gray); padding:48px; position:relative; overflow:hidden; }
+  .eff-card.highlight { background:linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(255,208,0,0.04) 100%); border:1px solid rgba(34,197,94,0.2); }
+  .eff-label { font-family:var(--font-head); font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+  .eff-card.highlight .eff-label { color:var(--green); }
+  .eff-val { font-family:var(--font-display); font-size:clamp(40px,6vw,80px); color:var(--white); line-height:1; margin-bottom:12px; }
+  .eff-card.highlight .eff-val { color:var(--green); }
+  .eff-desc { font-size:15px; font-weight:300; color:rgba(245,242,236,0.55); line-height:1.7; }
+  .eff-formula { margin-top:20px; font-family:var(--font-head); font-size:12px; font-weight:600; letter-spacing:1px; color:rgba(245,242,236,0.35); }
+
+  /* STRATEGY */
+  .strategy-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; }
+  .strategy-item { padding:32px 0; border-bottom:1px solid var(--mid); }
+  .strategy-item:first-child { padding-top:0; }
+  .strategy-num { font-family:var(--font-display); font-size:60px; color:rgba(255,77,0,0.12); line-height:1; margin-bottom:8px; }
+  .strategy-title { font-family:var(--font-head); font-size:18px; font-weight:700; margin-bottom:12px; }
+  .strategy-body { font-size:15px; font-weight:300; color:rgba(245,242,236,0.6); line-height:1.7; }
+
+  /* MONTHLY COMPARISON TABLE */
+  .comparison-table { width:100%; border-collapse:collapse; margin-top:40px; }
+  .comparison-table th { font-family:var(--font-head); font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:16px 20px; text-align:left; border-bottom:2px solid var(--accent); }
+  .comparison-table td { padding:20px; font-size:15px; border-bottom:1px solid var(--mid); vertical-align:middle; }
+  .comparison-table tr:hover td { background:rgba(255,77,0,0.02); }
+  .comparison-table .val { font-family:var(--font-display); font-size:28px; color:var(--accent2); }
+  .comparison-table .val.green { color:var(--green); }
+  .comparison-table .row-label { font-family:var(--font-head); font-weight:700; color:var(--white); font-size:13px; letter-spacing:1px; text-transform:uppercase; }
+  .comparison-table .note { font-size:12px; color:rgba(245,242,236,0.35); margin-top:4px; display:block; }
+
+  /* KEYWORD CARD SECTION */
+  .kw-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; margin-top:40px; }
+  .kw-card { background:var(--black); padding:28px; border-left:2px solid var(--accent2); }
+  .kw-type { font-family:var(--font-head); font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
+  .kw-list { font-size:14px; font-weight:300; color:rgba(245,242,236,0.6); line-height:2.1; }
+
+  /* AD COPY PREVIEW */
+  .ad-preview {
+    background:var(--black); border:1px solid var(--mid);
+    padding:28px 32px; margin-bottom:16px;
+    border-left:3px solid var(--google);
+    transition:border-color 0.3s, transform 0.3s;
+  }
+  .ad-preview:hover { border-left-color:var(--accent); transform:translateX(4px); }
+  .ad-url { font-size:13px; color:var(--green); font-weight:300; margin-bottom:6px; font-family:var(--font-body); }
+  .ad-headline { font-family:var(--font-head); font-size:18px; font-weight:700; color:#8ab4f8; margin-bottom:8px; line-height:1.3; }
+  .ad-desc { font-size:14px; font-weight:300; color:rgba(245,242,236,0.5); line-height:1.6; }
+  .ad-tag { display:inline-block; font-family:var(--font-head); font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:3px 8px; border:1px solid var(--mid); color:var(--muted); margin-top:10px; margin-right:6px; }
+  .ad-tag.winner { border-color:rgba(255,208,0,0.4); color:var(--accent2); background:rgba(255,208,0,0.06); }
+
+  /* QUOTE */
+  .cs-quote { padding:80px 48px; text-align:center; }
+  .cs-quote blockquote { font-family:var(--font-display); font-size:clamp(28px,4vw,52px); color:var(--white); line-height:1.2; max-width:900px; margin:0 auto; position:relative; }
+  .cs-quote blockquote::before { content:'"'; font-family:var(--font-display); font-size:160px; color:rgba(255,77,0,0.1); position:absolute; top:-40px; left:-20px; line-height:1; }
+  .cs-quote em { font-style:normal; color:var(--accent); }
+
+  /* LEARNINGS */
+  .learnings-list { display:flex; flex-direction:column; gap:24px; margin-top:40px; }
+  .learning-item { display:flex; gap:24px; align-items:flex-start; padding:28px; background:var(--gray); border-left:3px solid var(--accent); transition:background 0.3s; }
+  .learning-item:hover { background:rgba(255,77,0,0.04); }
+  .learning-icon { font-size:24px; flex-shrink:0; margin-top:2px; }
+  .learning-body {}
+  .learning-title { font-family:var(--font-head); font-size:16px; font-weight:700; margin-bottom:8px; }
+  .learning-text { font-size:15px; font-weight:300; color:rgba(245,242,236,0.6); line-height:1.7; }
+
+  /* NEXT/BACK */
+  .nav-between { border-top:1px solid var(--mid); padding:80px 48px; display:flex; justify-content:space-between; align-items:center; }
+  .nb-prev { text-align:left; }
+  .nb-next { text-align:right; }
+  .nb-label { font-family:var(--font-head); font-size:10px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+  .nb-title { font-family:var(--font-display); font-size:clamp(28px,4vw,56px); color:var(--white); text-decoration:none; display:block; transition:color 0.2s; line-height:1; }
+  .nb-title:hover { color:var(--accent); }
+  .nb-sub { font-family:var(--font-head); font-size:11px; color:var(--muted); margin-top:8px; letter-spacing:1px; text-transform:uppercase; }
+
+  footer { border-top:1px solid var(--mid); padding:40px 48px; display:flex; justify-content:space-between; align-items:center; }
+  .footer-logo { font-family:var(--font-display); font-size:24px; letter-spacing:4px; color:rgba(245,242,236,0.3); }
+  .footer-copy { font-family:var(--font-head); font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+
+  /* REVEAL */
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+  .reveal.visible { opacity:1; transform:none; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+  @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  @keyframes scrollAnim { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  /* COUNT-UP animation handled via JS */
+  .count-up { display:inline; }
+
+  @media(max-width:1100px){
+    .metrics-grid-5 { grid-template-columns:repeat(3,1fr); }
+    .funnel-flow { flex-direction:column; }
+    .funnel-step { clip-path:none; margin-right:0; border-right:none; border-bottom:1px solid var(--mid); }
+    .funnel-step:last-child { border:1px solid rgba(34,197,94,0.25); }
+  }
+  @media(max-width:900px){
+    nav{padding:20px 24px;} .cs-hero{padding:0 24px 60px;} .section{padding:80px 24px;}
+    .overview-grid,.strategy-grid,.efficiency-block{grid-template-columns:1fr;gap:40px;}
+    .metrics-grid-5{grid-template-columns:1fr 1fr;}
+    .kw-grid{grid-template-columns:1fr;}
+    .nav-between{flex-direction:column;gap:48px;padding:60px 24px;text-align:center;}
+    footer{padding:32px 24px;flex-direction:column;gap:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="endar-portfolio.html" class="nav-logo">ENDAR</a>
+  <a href="endar-portfolio.html#work" class="nav-back">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    All Case Studies
+  </a>
+</nav>
+
+<!-- HERO -->
+<section class="cs-hero">
+  <div class="cs-hero-bg"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-glow"></div>
+  <div class="case-num-bg">05</div>
+
+  <div class="cs-tag">Case Study 05</div>
+  <div class="cs-industry">Telecom / ISP</div>
+  <h1 class="cs-title">
+    MY<em>REPUBLIC</em><br>
+    <span class="outline">Google Ads</span><br>
+    Direct Sales
+  </h1>
+
+  <div class="cs-hero-meta">
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Client</div>
+      <div class="hero-meta-val">MyRepublic</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Channel</div>
+      <div class="hero-meta-val">Google Ads Search</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Duration</div>
+      <div class="hero-meta-val">2 Months</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Total Budget</div>
+      <div class="hero-meta-val">IDR 7 Juta</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-label">Active Sales</div>
+      <div class="hero-meta-val">80 Pelanggan Baru</div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <div class="ticker-item"><span>★</span> 80 Direct Sales</div>
+    <div class="ticker-item"><span>★</span> 400 Qualified Leads</div>
+    <div class="ticker-item"><span>★</span> 2,100+ Clicks</div>
+    <div class="ticker-item"><span>★</span> 39K Impressions</div>
+    <div class="ticker-item"><span>★</span> IDR 3K Avg CPC</div>
+    <div class="ticker-item"><span>★</span> 20% Lead-to-Sale Rate</div>
+    <div class="ticker-item"><span>★</span> IDR 7M Budget — 2 Months</div>
+    <div class="ticker-item"><span>★</span> 80 Direct Sales</div>
+    <div class="ticker-item"><span>★</span> 400 Qualified Leads</div>
+    <div class="ticker-item"><span>★</span> 2,100+ Clicks</div>
+    <div class="ticker-item"><span>★</span> 39K Impressions</div>
+    <div class="ticker-item"><span>★</span> IDR 3K Avg CPC</div>
+    <div class="ticker-item"><span>★</span> 20% Lead-to-Sale Rate</div>
+    <div class="ticker-item"><span>★</span> IDR 7M Budget — 2 Months</div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section reveal">
+  <div class="overview-grid">
+    <div>
+      <div class="section-label">Overview</div>
+      <h2 class="section-title">The <em>Challenge</em></h2>
+      <div class="overview-body">
+        <p>MyRepublic — a fast-growing fiber internet provider — needed Google Ads Search to do something most brands stop short of: <strong>go beyond lead generation and drive actual direct sales</strong>. Not just form submissions. Real, signed-up subscribers.</p>
+        <p>The ask was straightforward but demanding: run a 2-month SEM campaign with a lean IDR 7 juta budget and measure success all the way to the bottom of the funnel — from search impression to active customer account.</p>
+        <p>In a market where ISP SEM campaigns typically report CPL and call it a day, tracking <strong>cost-per-sale</strong> raised the accountability bar entirely.</p>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">My Role</div>
+      <h2 class="section-title">What I <em>Did</em></h2>
+      <div class="overview-body">
+        <p>Full-funnel Google Ads ownership with direct sales as the north star metric:</p>
+        <p>→ Campaign architecture: keyword research, match types, ad group structure<br>
+        → RSA ad copy writing and A/B testing (3+ variants per group)<br>
+        → Bid strategy management with conversion goal anchored to sales<br>
+        → Negative keyword expansion to protect IDR 3K CPC efficiency<br>
+        → Landing page alignment recommendations for conversion lift<br>
+        → Full-funnel reporting: Impressions → Clicks → Leads → Active Sales<br>
+        → Geographic targeting scoped to MyRepublic service coverage areas</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- 5 KEY METRICS -->
+<div class="metrics-banner reveal">
+  <div class="metrics-grid-5">
+    <div class="metric-card">
+      <div class="metric-val">39K</div>
+      <div class="metric-key">Total Impressions</div>
+      <div class="metric-sub">In 2 months</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">2,100+</div>
+      <div class="metric-key">Clicks</div>
+      <div class="metric-sub">~5.4% CTR</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">400</div>
+      <div class="metric-key">Qualified Leads</div>
+      <div class="metric-sub">~19% click-to-lead rate</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">IDR 3K</div>
+      <div class="metric-key">Avg CPC</div>
+      <div class="metric-sub">Highly efficient for ISP SEM</div>
+    </div>
+    <div class="metric-card sales">
+      <div class="metric-val">80</div>
+      <div class="metric-key">Active Sales</div>
+      <div class="metric-sub">20% lead-to-sale conversion</div>
+    </div>
+  </div>
+</div>
+
+<!-- FULL FUNNEL -->
+<div class="funnel-section">
+  <div class="funnel-inner reveal">
+    <div class="section-label">Full Funnel View</div>
+    <h2 class="section-title">From Search to <em>Signed Customer</em></h2>
+    <p style="font-size:17px;font-weight:300;color:rgba(245,242,236,0.6);max-width:700px;line-height:1.8;margin-bottom:0;">Most SEM campaigns stop reporting at the lead. This one went all the way to active subscriber — the metric that actually matters for a service business.</p>
+
+    <div class="funnel-flow">
+      <div class="funnel-step">
+        <div class="funnel-stage">Top of Funnel</div>
+        <div class="funnel-num">39,000</div>
+        <div class="funnel-label">Impressions</div>
+        <div class="funnel-rate">Search Visibility</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-stage">Intent Signal</div>
+        <div class="funnel-num">2,100+</div>
+        <div class="funnel-label">Clicks</div>
+        <div class="funnel-rate">~5.4% CTR</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-stage">Lead Capture</div>
+        <div class="funnel-num">400</div>
+        <div class="funnel-label">Qualified Leads</div>
+        <div class="funnel-rate">~19% Click→Lead</div>
+      </div>
+      <div class="funnel-step">
+        <div class="funnel-stage">Bottom of Funnel</div>
+        <div class="funnel-num">80</div>
+        <div class="funnel-label">Active Sales</div>
+        <div class="funnel-rate">20% Lead→Sale</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EFFICIENCY CALLOUTS -->
+<div class="section-alt">
+  <div class="section-alt-inner">
+    <div class="section reveal" style="padding-top:0;padding-bottom:0;">
+      <div class="section-label">Cost Efficiency</div>
+      <h2 class="section-title">Budget Breakdown <em>That Actually Matters</em></h2>
+      <div class="efficiency-block">
+        <div class="eff-card">
+          <div class="eff-label">Cost Per Click</div>
+          <div class="eff-val">IDR 3K</div>
+          <div class="eff-desc">Average CPC across the full 2-month campaign. For competitive ISP keywords — where larger telcos routinely bid IDR 5K–15K — maintaining IDR 3K CPC is a direct result of Quality Score discipline: tight keyword relevance, strong ad copy, and landing page alignment.</div>
+          <div class="eff-formula">IDR 7.000.000 ÷ 2.100 clicks = IDR ~3.333 CPC</div>
+        </div>
+        <div class="eff-card highlight">
+          <div class="eff-label">Cost Per Active Sale</div>
+          <div class="eff-val">IDR 87.5K</div>
+          <div class="eff-desc">This is the number that matters. IDR 87,500 to acquire one active subscriber — a customer with ongoing monthly recurring revenue. For a fiber internet product priced at hundreds of thousands per month, this cost-per-acquisition represents exceptional ROI and a payback period of less than one billing cycle.</div>
+          <div class="eff-formula">IDR 7.000.000 ÷ 80 sales = IDR 87.500 per customer</div>
+        </div>
+      </div>
+
+      <div class="efficiency-block" style="margin-top:2px;">
+        <div class="eff-card">
+          <div class="eff-label">Cost Per Lead</div>
+          <div class="eff-val">IDR 17.5K</div>
+          <div class="eff-desc">400 qualified leads from IDR 7M budget gives a CPL of IDR 17,500 — well below the ISP SEM benchmark of IDR 30K–50K/lead. The 19% click-to-lead rate also signals strong landing page alignment with search intent.</div>
+          <div class="eff-formula">IDR 7.000.000 ÷ 400 leads = IDR 17.500 CPL</div>
+        </div>
+        <div class="eff-card">
+          <div class="eff-label">Lead-to-Sale Conversion</div>
+          <div class="eff-val">20%</div>
+          <div class="eff-desc">1 in 5 leads became an active subscriber. For ISP direct sales — where leads often require multiple follow-ups, address verification, and installation scheduling — a 20% lead-to-sale rate indicates the campaign was attracting genuinely high-intent customers, not just casual inquiries.</div>
+          <div class="eff-formula">80 sales ÷ 400 leads = 20% conversion rate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUOTE -->
+<div class="cs-quote reveal">
+  <blockquote>
+    IDR 87.5K to acquire a fiber internet subscriber. <em>That's not a cost — that's an investment with a one-month payback.</em>
+  </blockquote>
+</div>
+
+<!-- STRATEGY -->
+<div class="section reveal">
+  <div class="section-label">Approach</div>
+  <h2 class="section-title">SEM Strategy Built for <em>Sales, Not Just Leads</em></h2>
+  <div class="strategy-grid">
+    <div>
+      <div class="strategy-item">
+        <div class="strategy-num">01</div>
+        <div class="strategy-title">Sales-Intent Keyword Selection</div>
+        <div class="strategy-body">Focused keyword selection on terms that signal purchase intent, not just research. "Daftar MyRepublic", "pasang fiber MyRepublic", "promo internet MyRepublic" vs. informational queries like "internet fiber apa saja". This selection bias toward commercial intent is the foundational reason the 20% lead-to-sale rate was achievable.</div>
+      </div>
+      <div class="strategy-item">
+        <div class="strategy-num">02</div>
+        <div class="strategy-title">Quality Score Optimization for CPC Control</div>
+        <div class="strategy-body">Maintained IDR 3K average CPC in a competitive ISP market by obsessing over Quality Score: ad copy that precisely matched keyword intent, ad groups with tight thematic clustering (max 5–8 keywords per group), and ongoing feedback to align landing page messaging with Search queries. Higher Quality Score = lower CPC from Google's auction.</div>
+      </div>
+    </div>
+    <div>
+      <div class="strategy-item">
+        <div class="strategy-num">03</div>
+        <div class="strategy-title">Full-Funnel Conversion Tracking</div>
+        <div class="strategy-body">Set up Google Tag Manager and Google Ads conversion tracking to capture multiple funnel events: form submission (lead), phone call click, and — critically — sale confirmation (passed from CRM). This granular tracking enabled bid optimization toward actual sales signals, not just lead form completions.</div>
+      </div>
+      <div class="strategy-item">
+        <div class="strategy-num">04</div>
+        <div class="strategy-title">Ad Scheduling & Geo-Fence Targeting</div>
+        <div class="strategy-body">Applied bid adjustments to boost presence during peak search hours (7–9 AM commute, 7–10 PM evening browsing) and restricted geographic targeting to MyRepublic's serviceable coverage zones. Both levers reduced wasted spend and improved the relevance of every click — directly contributing to the 19% click-to-lead rate.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KEYWORD STRATEGY -->
+<div class="section-alt">
+  <div class="section-alt-inner">
+    <div class="section reveal" style="padding-top:0;padding-bottom:0;">
+      <div class="section-label">Keyword Strategy</div>
+      <h2 class="section-title">Targeting <em>Buyers, Not Browsers</em></h2>
+      <div class="kw-grid">
+        <div class="kw-card">
+          <div class="kw-type">🔴 High Intent — Exact Match</div>
+          <div class="kw-list">
+            [daftar myrepublic]<br>
+            [pasang internet myrepublic]<br>
+            [internet fiber myrepublic]<br>
+            [promo myrepublic]<br>
+            [berlangganan myrepublic]
+          </div>
+        </div>
+        <div class="kw-card">
+          <div class="kw-type">🟡 Commercial Intent — Phrase Match</div>
+          <div class="kw-list">
+            "internet rumah cepat"<br>
+            "fiber optik murah jakarta"<br>
+            "paket internet unlimited rumah"<br>
+            "ganti internet rumah"<br>
+            "internet fiber gaming"
+          </div>
+        </div>
+        <div class="kw-card">
+          <div class="kw-type">⛔ Negatives (Budget Protection)</div>
+          <div class="kw-list">
+            -gratis -free trial<br>
+            -internet kantor -enterprise<br>
+            -lowongan -kerja -karir<br>
+            -indihome -firstmedia<br>
+            -mifi -modem portable
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AD COPY SHOWCASE -->
+<div class="section reveal">
+  <div class="section-label">Creative</div>
+  <h2 class="section-title">Ad Copy <em>That Converts</em></h2>
+  <p style="font-size:16px;font-weight:300;color:rgba(245,242,236,0.6);max-width:640px;line-height:1.8;margin-bottom:40px;">Three RSA headline strategies were tested across ad groups. Each targets a different buyer motivation — speed, price, and reliability — to match varied search intents within the campaign.</p>
+
+  <div class="ad-preview">
+    <div class="ad-url">myrepublic.net.id › internet › fiber-rumah</div>
+    <div class="ad-headline">MyRepublic Fiber 100 Mbps — Daftar Sekarang, Langsung Aktif | Promo Terbatas</div>
+    <div class="ad-desc">Internet fiber tanpa batas untuk rumah & gaming. Koneksi stabil 24/7, tanpa FUP. Cek ketersediaan area & daftar online dalam 2 menit.</div>
+    <span class="ad-tag winner">⭐ Top Performer — Speed + Urgency</span>
+  </div>
+
+  <div class="ad-preview">
+    <div class="ad-url">myrepublic.net.id › promo › internet-rumah</div>
+    <div class="ad-headline">Internet Rumah Mulai 200K/Bln | MyRepublic Fiber — Tanpa Kontrak Jangka Panjang</div>
+    <div class="ad-desc">Nikmati internet cepat dengan harga terjangkau. Fiber optik, ping rendah, cocok untuk WFH & streaming. Hubungi kami sekarang.</div>
+    <span class="ad-tag">Price-Led Messaging</span>
+  </div>
+
+  <div class="ad-preview">
+    <div class="ad-url">myrepublic.net.id › fiber › gaming-internet</div>
+    <div class="ad-headline">Internet Gaming & WFH Terbaik | MyRepublic — Ping Rendah, Koneksi Stabil</div>
+    <div class="ad-desc">Dirancang untuk gamer & pekerja remote. Fiber simetris, latensi ultra-rendah, uptime 99.9%. Daftar & aktifkan dalam 24 jam.</div>
+    <span class="ad-tag">Segment-Specific (Gaming/WFH)</span>
+  </div>
+</div>
+
+<!-- MONTHLY BREAKDOWN -->
+<div class="section-alt">
+  <div class="section-alt-inner">
+    <div class="section reveal" style="padding-top:0;padding-bottom:0;">
+      <div class="section-label">Campaign Progress</div>
+      <h2 class="section-title">Month-by-Month <em>Performance</em></h2>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Period</th>
+            <th>Impressions</th>
+            <th>Clicks</th>
+            <th>Avg CPC</th>
+            <th>Leads</th>
+            <th>Active Sales</th>
+            <th>Lead→Sale Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="row-label">Bulan 1</span><span class="note">Learning phase · Manual CPC</span></td>
+            <td><span class="val">~18K</span></td>
+            <td><span class="val">~950</span></td>
+            <td><span class="val" style="font-size:20px;">IDR 3.5K</span></td>
+            <td><span class="val">~170</span></td>
+            <td><span class="val green">~30</span></td>
+            <td style="color:rgba(245,242,236,0.5);">~18%</td>
+          </tr>
+          <tr>
+            <td><span class="row-label">Bulan 2</span><span class="note">Optimized · Smart Bidding active</span></td>
+            <td><span class="val">~21K</span></td>
+            <td><span class="val">~1,150</span></td>
+            <td><span class="val" style="font-size:20px;">IDR 2.6K</span></td>
+            <td><span class="val">~230</span></td>
+            <td><span class="val green">~50</span></td>
+            <td style="color:var(--green);font-weight:700;">~22%</td>
+          </tr>
+          <tr style="background:rgba(34,197,94,0.03);">
+            <td><span class="row-label" style="color:var(--accent2);">TOTAL</span><span class="note">2-month campaign total</span></td>
+            <td><span class="val">39K</span></td>
+            <td><span class="val">2,100+</span></td>
+            <td><span class="val" style="font-size:20px;">IDR ~3K</span></td>
+            <td><span class="val">400</span></td>
+            <td><span class="val green">80</span></td>
+            <td style="color:var(--green);font-weight:700;">20%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- LEARNINGS -->
+<div class="section reveal">
+  <div class="section-label">Takeaways</div>
+  <h2 class="section-title">Key <em>Learnings</em></h2>
+  <div class="learnings-list">
+    <div class="learning-item">
+      <div class="learning-icon">💰</div>
+      <div class="learning-body">
+        <div class="learning-title">Track to sale, not just lead — it changes everything</div>
+        <div class="learning-text">When a campaign is optimized toward form submissions, the algorithm chases form fillers — not buyers. Integrating CRM sale data back into Google Ads conversion tracking (via offline conversion import) allows the bidding algorithm to learn what a high-quality, close-able lead looks like. The 20% lead-to-sale rate is partly a result of this signal quality — the algorithm was attracting real buyers.</div>
+      </div>
+    </div>
+    <div class="learning-item">
+      <div class="learning-icon">📉</div>
+      <div class="learning-body">
+        <div class="learning-title">IDR 3K CPC in ISP SEM is achievable — but only with Quality Score discipline</div>
+        <div class="learning-text">Competitors in ISP SEM routinely pay IDR 5K–15K per click because they treat Google Ads as a fire-and-forget channel. Achieving IDR 3K average CPC required tight keyword grouping, ad copy that matched search intent precisely, and regular account hygiene. Every 1,000 points of Quality Score improvement translates directly to CPC reduction — and budget efficiency.</div>
+      </div>
+    </div>
+    <div class="learning-item">
+      <div class="learning-icon">📍</div>
+      <div class="learning-body">
+        <div class="learning-title">Geographic precision multiplies budget efficiency for ISPs</div>
+        <div class="learning-text">Clicks from areas MyRepublic can't serve are 100% wasted spend. Restricting targeting to serviceable coverage zones — and applying bid modifiers to boost within high-density service areas — was a foundational setup decision. It's invisible in the final numbers, but it's what made IDR 17.5K CPL possible at a lean IDR 7M total budget.</div>
+      </div>
+    </div>
+    <div class="learning-item">
+      <div class="learning-icon">🔼</div>
+      <div class="learning-body">
+        <div class="learning-title">Month 2 improvement proves the compound effect of SEM optimization</div>
+        <div class="learning-text">CPC dropped from IDR 3.5K to IDR 2.6K from Month 1 to Month 2 — a 26% improvement — while lead-to-sale rate climbed from 18% to 22%. This compound improvement is characteristic of well-managed SEM: the account learns, negatives expand, copy sharpens, and Smart Bidding accumulates signal. The best campaign performance is always in Month 3 onward — which is why continuity matters.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BETWEEN NAV -->
+<div class="nav-between">
+  <div class="nb-prev">
+    <div class="nb-label">← Previous Case Study</div>
+    <a href="case-study-04-first-media.html" class="nb-title">First Media</a>
+    <div class="nb-sub">Telecom — Lead Acquisition</div>
+  </div>
+  <div class="nb-next">
+    <div class="nb-label">Back to Portfolio →</div>
+    <a href="endar-portfolio.html" class="nb-title">All Work</a>
+    <div class="nb-sub">View all case studies</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">ENDAR</div>
+  <div class="footer-copy">© 2026 Wahyu Endar Subekti</div>
+</footer>
+
+<script>
+  // CURSOR
+  const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx+'px';cursor.style.top=my+'px';});
+  function animRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);}
+  animRing();
+
+  // REVEAL ON SCROLL
+  const reveals=document.querySelectorAll('.reveal');
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach((e,i)=>{
+      if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*60);observer.unobserve(e.target);}
+    });
+  },{threshold:0.08});
+  reveals.forEach(el=>observer.observe(el));
+
+  // COUNT-UP ANIMATION for metric values
+  function animateCount(el, target, prefix='', suffix='', duration=1600){
+    const isFloat = String(target).includes('.');
+    let start=null;
+    const from=0;
+    function step(ts){
+      if(!start) start=ts;
+      const progress=Math.min((ts-start)/duration,1);
+      const ease=1-Math.pow(1-progress,3);
+      const val=from+(target-from)*ease;
+      el.textContent=prefix+(isFloat?val.toFixed(1):Math.floor(val).toLocaleString('id-ID'))+suffix;
+      if(progress<1) requestAnimationFrame(step);
+      else el.textContent=prefix+target.toLocaleString('id-ID')+suffix;
+    }
+    requestAnimationFrame(step);
+  }
+
+  const countObserver=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        const el=entry.target;
+        const raw=el.dataset.count;
+        const prefix=el.dataset.prefix||'';
+        const suffix=el.dataset.suffix||'';
+        animateCount(el,parseFloat(raw),prefix,suffix);
+        countObserver.unobserve(el);
+      }
+    });
+  },{threshold:0.5});
+  document.querySelectorAll('.count-up').forEach(el=>countObserver.observe(el));
+</script>
+</body>
+</html>
